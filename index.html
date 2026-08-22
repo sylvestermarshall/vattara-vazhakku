@@ -1,0 +1,1589 @@
+<title>Vattara Vazhakku</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;600;700&family=Catamaran:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #e6edf3;
+    --surface: #f3f8fb;
+    --surface-raised: #fcfeff;
+    --ink: #1b2e3d;
+    --ink-soft: #4d6577;
+    --ink-faint: #8098a8;
+    --line: #c2d3de;
+    --line-soft: #d6e2ea;
+    --accent: #1f6f6b;
+    --accent-ink: #fcfeff;
+    --accent-soft: #dceae7;
+    --accent-soft-line: #b9d6d2;
+    --danger: #9b3b2c;
+    --danger-soft: #f1e2de;
+    --shadow: 0 1px 2px rgba(20, 35, 48, 0.07), 0 4px 14px rgba(20, 35, 48, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1a24;
+      --surface: #16232f;
+      --surface-raised: #1c2c3a;
+      --ink: #e2edf4;
+      --ink-soft: #a9bfcf;
+      --ink-faint: #708494;
+      --line: #2b3f4d;
+      --line-soft: #223543;
+      --accent: #4fbbb3;
+      --accent-ink: #0c1b1a;
+      --accent-soft: #1f3a37;
+      --accent-soft-line: #2f5551;
+      --danger: #e28468;
+      --danger-soft: #392722;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0f1a24;
+    --surface: #16232f;
+    --surface-raised: #1c2c3a;
+    --ink: #e2edf4;
+    --ink-soft: #a9bfcf;
+    --ink-faint: #708494;
+    --line: #2b3f4d;
+    --line-soft: #223543;
+    --accent: #4fbbb3;
+    --accent-ink: #0c1b1a;
+    --accent-soft: #1f3a37;
+    --accent-soft-line: #2f5551;
+    --danger: #e28468;
+    --danger-soft: #392722;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 1.1rem 4rem;
+  }
+
+  header.top {
+    background: var(--bg);
+    padding: 1.4rem 0 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  h1 {
+    font-family: "Baloo Thambi 2", "Catamaran", sans-serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+
+  .brand .sub {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+
+  .sync-pill {
+    align-self: flex-start;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .sync-pill:hover { text-decoration: underline; }
+  .sync-pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+  .sync-pill.ok { color: var(--accent); }
+  .sync-pill.err { color: var(--danger); text-decoration: underline; }
+
+  button.iconbtn {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    border-radius: 8px;
+    width: 2.15rem;
+    height: 2.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  button.iconbtn:hover { border-color: var(--accent); color: var(--accent); }
+  button.iconbtn:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  nav.tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.3rem;
+  }
+
+  nav.tabs button {
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.55rem 0.4rem;
+    border-radius: 9px;
+    cursor: pointer;
+    line-height: 1.15;
+  }
+
+  nav.tabs button .ta { display: block; font-size: 0.95rem; }
+  nav.tabs button .en { display: block; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.75; margin-top: 0.15rem; }
+
+  nav.tabs button.active {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  section.view { display: none; padding-top: 1.3rem; }
+  section.view.active { display: block; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.1rem;
+    box-shadow: var(--shadow);
+  }
+
+  .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.9rem; }
+  .field:last-of-type { margin-bottom: 0; }
+
+  .field label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--ink-faint);
+  }
+  .field label .req { color: var(--danger); }
+  .field label .opt { text-transform: none; letter-spacing: 0; font-weight: 500; opacity: 0.75; }
+
+  input[type="text"], textarea, select {
+    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
+    font-size: 1.05rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 9px;
+    padding: 0.6rem 0.7rem;
+    width: 100%;
+  }
+  input[lang="ta"], textarea[lang="ta"] { font-size: 1.15rem; }
+  textarea { resize: vertical; min-height: 3.2rem; font-size: 0.95rem; }
+  input::placeholder, textarea::placeholder { color: var(--ink-faint); }
+
+  .word-ref {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-top: 0.35rem;
+    line-height: 1.4;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 9px;
+    padding: 0.65rem 1.1rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); width: 100%; margin-top: 0.3rem; }
+  .btn-ghost { background: transparent; border-color: var(--line); color: var(--ink-soft); }
+  .btn-danger { background: transparent; border-color: var(--danger-soft); color: var(--danger); }
+  .btn-small { padding: 0.4rem 0.7rem; font-size: 0.82rem; border-radius: 7px; }
+
+  .toast {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 0.7rem;
+    min-height: 1.1em;
+  }
+
+  .recent-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin: 1.6rem 0 0.6rem;
+  }
+
+  /* search / filter bar */
+  .searchbar { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
+  .searchbar input { flex: 1; }
+  .searchbar select { max-width: 40%; flex-shrink: 0; }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin-bottom: 0.7rem;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  /* entry list w/ spine motif (recent-added, read-only) */
+  ul.entries { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+
+  li.entry {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.85rem 0.9rem 0.85rem 1.3rem;
+    box-shadow: var(--shadow);
+  }
+  li.entry::before {
+    content: "";
+    position: absolute;
+    left: 0.55rem;
+    top: 0.9rem;
+    bottom: 0.9rem;
+    width: 1px;
+    background: var(--line);
+  }
+  li.entry::after {
+    content: "";
+    position: absolute;
+    left: 0.55rem;
+    top: 0.9rem;
+    width: 5px;
+    height: 5px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+  }
+
+  .entry-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+  .entry-word { font-size: 1.2rem; font-weight: 600; }
+  .entry-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+  .entry-actions button {
+    background: none; border: none; color: var(--ink-faint); cursor: pointer;
+    font-size: 0.95rem; padding: 0.2rem 0.3rem; border-radius: 6px;
+  }
+  .entry-actions button:hover { color: var(--accent); background: var(--accent-soft); }
+  .entry-actions button.del:hover { color: var(--danger); background: var(--danger-soft); }
+
+  .variant-word-ref { font-size: 0.78rem; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
+
+  .chiprow { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
+  .chip {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    color: var(--accent);
+  }
+  .chip.date {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--ink-faint);
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 500;
+  }
+
+  .edit-form { display: flex; flex-direction: column; gap: 0.6rem; }
+  .edit-actions { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
+
+  .empty {
+    text-align: center;
+    padding: 2.6rem 1rem;
+    color: var(--ink-faint);
+  }
+  .empty .ta { font-size: 1.05rem; color: var(--ink-soft); margin-bottom: 0.3rem; }
+  .empty .en { font-size: 0.85rem; }
+
+  /* word cards (Words tab) */
+  ul.word-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  li.word-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.95rem 1rem;
+    box-shadow: var(--shadow);
+  }
+  .word-card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+  .word-card-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+  }
+  .word-card-title-wrap { min-width: 0; }
+  .word-card-title {
+    font-family: "Baloo Thambi 2", sans-serif;
+    font-size: 1.15rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .word-card-meaning { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .word-card-toggle .chev { color: var(--ink-faint); flex-shrink: 0; font-size: 0.85rem; }
+
+  ul.variant-list { list-style: none; margin: 0.7rem 0 0; padding: 0; flex-direction: column; gap: 0.4rem; display: none; }
+  .word-card.expanded ul.variant-list { display: flex; }
+  li.variant-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 8px;
+    background: var(--surface-raised);
+    border: 1px solid var(--line-soft);
+  }
+  .variant-region {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
+    flex-shrink: 0;
+  }
+  .variant-word { font-size: 1.02rem; font-weight: 600; lang: ta; }
+  .variant-actions { display: flex; gap: 0.1rem; margin-left: auto; flex-shrink: 0; }
+  .variant-actions button {
+    background: none; border: none; color: var(--ink-faint); cursor: pointer;
+    font-size: 0.85rem; padding: 0.15rem 0.3rem; border-radius: 6px;
+  }
+  .variant-actions button:hover { color: var(--accent); background: var(--accent-soft); }
+  .variant-actions button.del-variant:hover { color: var(--danger); background: var(--danger-soft); }
+
+  li.variant-item.variant-edit, li.variant-item.variant-add-form {
+    background: none; border: none; padding: 0; display: block;
+  }
+
+
+  /* region / word picker triggers */
+  .region-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
+    font-size: 1.05rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 9px;
+    padding: 0.6rem 0.7rem;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+  }
+  .region-trigger .val.placeholder { color: var(--ink-faint); }
+  .region-trigger .chev { color: var(--ink-faint); flex-shrink: 0; font-size: 0.8rem; }
+
+  .sheet-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10, 17, 24, 0.5);
+    z-index: 30;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .sheet-backdrop.open { display: flex; }
+  .sheet {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    max-width: 640px;
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+  }
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.1rem 0.7rem;
+    border-bottom: 1px solid var(--line-soft);
+    flex-shrink: 0;
+  }
+  .sheet-head h2 { font-family: "Baloo Thambi 2", sans-serif; font-size: 1.05rem; margin: 0; }
+  .sheet-search-wrap { padding: 0.7rem 0.9rem 0; flex-shrink: 0; }
+  .sheet-list {
+    overflow-y: auto;
+    padding: 0.4rem 0.5rem;
+    flex: 1;
+  }
+  .sheet-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
+    font-size: 1rem;
+    color: var(--ink);
+    padding: 0.8rem 0.7rem;
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  .sheet-option:hover { background: var(--accent-soft); }
+  .sheet-option.selected { color: var(--accent); font-weight: 700; }
+  .sheet-option.selected::after { content: "✓"; flex-shrink: 0; margin-left: 0.5rem; }
+  .word-option { align-items: center; }
+  .wo-main { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+  .wo-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wo-sub { font-size: 0.78rem; font-weight: 500; color: var(--ink-faint); }
+  .wo-count { font-size: 0.75rem; font-weight: 500; color: var(--ink-faint); flex-shrink: 0; margin-left: 0.6rem; font-family: "JetBrains Mono", monospace; }
+  .sheet-empty { padding: 1.4rem 0.7rem; color: var(--ink-faint); font-size: 0.9rem; text-align: center; }
+  .sheet-add-row {
+    flex-shrink: 0;
+    border-top: 1px solid var(--line-soft);
+    padding: 0.7rem;
+  }
+  .sheet-add-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: "Catamaran", sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--accent);
+    padding: 0.6rem 0.5rem;
+    cursor: pointer;
+  }
+  .sheet-add-form { display: flex; gap: 0.5rem; }
+  .sheet-add-form input {
+    flex: 1;
+    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
+    font-size: 1rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 9px;
+    padding: 0.55rem 0.7rem;
+  }
+  .sheet-add-form-fields { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  /* backup modal */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10, 17, 24, 0.5);
+    z-index: 20;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 4vh 1rem;
+    overflow-y: auto;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 1.3rem;
+    box-shadow: var(--shadow);
+  }
+  .modal h2 { font-family: "Baloo Thambi 2", sans-serif; font-size: 1.2rem; margin: 0 0 0.3rem; }
+  .modal p.note { font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 1rem; line-height: 1.5; }
+  .modal textarea { font-family: "JetBrains Mono", monospace; font-size: 0.78rem; min-height: 7rem; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.1rem; }
+  .import-status { font-size: 0.83rem; margin-top: 0.5rem; min-height: 1.1em; color: var(--accent); font-weight: 600; }
+
+  .word-card.expanded .word-card-toggle .chev { transform: rotate(180deg); }
+  @media (prefers-reduced-motion: no-preference) {
+    li.entry, li.word-card, .panel { transition: none; }
+    .word-card-toggle .chev { transition: transform 0.15s ease; }
+  }
+</style>
+
+<div class="shell">
+  <header class="top">
+    <div class="title-row">
+      <div class="brand">
+        <h1>வட்டார வழக்கு</h1>
+        <span class="sub">Vattara Vazhakku — your accent notebook</span>
+      </div>
+      <button class="iconbtn" id="backupBtn" title="Backup / restore" aria-label="Backup or restore your words">⇅</button>
+    </div>
+    <button class="sync-pill" id="syncPill" type="button">Checking sync…</button>
+    <nav class="tabs" role="tablist">
+      <button class="active" data-view="add" role="tab" aria-selected="true">
+        <span class="ta">சேர்</span><span class="en">Add</span>
+      </button>
+      <button data-view="words" role="tab" aria-selected="false">
+        <span class="ta">சொற்கள்</span><span class="en">Words</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ADD -->
+  <section class="view active" id="view-add">
+    <div class="panel">
+      <form id="addForm">
+        <div class="field">
+          <label for="f-colloquial">Word as heard <span class="req">*</span></label>
+          <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label for="f-word-trigger">Which word is this <span class="req">*</span></label>
+          <button type="button" class="region-trigger" id="f-word-trigger">
+            <span class="val placeholder" id="f-word-label">Select a word</span>
+            <span class="chev">▾</span>
+          </button>
+          <input type="hidden" id="f-word-id">
+          <div class="word-ref" id="f-word-ref" style="display:none;"></div>
+        </div>
+        <div class="field">
+          <label for="f-region-trigger">Region / accent <span class="req">*</span></label>
+          <button type="button" class="region-trigger" id="f-region-trigger">
+            <span class="val placeholder" id="f-region-label">Select a region</span>
+            <span class="chev">▾</span>
+          </button>
+          <input type="hidden" id="f-region">
+        </div>
+        <button type="submit" class="btn btn-primary">சேர் · Save version</button>
+        <div class="toast" id="addToast"></div>
+      </form>
+    </div>
+    <div id="recentWrap"></div>
+  </section>
+
+  <!-- WORDS -->
+  <section class="view" id="view-words">
+    <div class="searchbar">
+      <input type="text" id="search" placeholder="Search words, meanings, notes…" autocomplete="off">
+      <select id="regionFilter"><option value="">All regions</option></select>
+    </div>
+    <div class="meta-row"><span id="countLabel">0 words</span><span id="regionCountLabel"></span></div>
+    <ul class="word-list" id="wordList"></ul>
+    <div class="empty" id="wordsEmptyState" style="display:none;">
+      <div class="ta">இன்னும் ஒன்றுமில்லை</div>
+      <div class="en">Nothing collected yet — add your first word.</div>
+    </div>
+  </section>
+</div>
+
+<div class="sheet-backdrop" id="regionSheet">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Region / accent</h2>
+      <button class="iconbtn" id="regionSheetClose" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-list" id="regionSheetList"></div>
+    <div class="sheet-add-row" id="regionAddRow">
+      <button type="button" class="sheet-add-toggle" id="regionAddToggle">+ Add region</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="wordSheet">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Which word is this?</h2>
+      <button class="iconbtn" id="wordSheetClose" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-search-wrap">
+      <input type="text" id="wordSearchInput" placeholder="Search your words…" autocomplete="off">
+    </div>
+    <div class="sheet-list" id="wordSheetList"></div>
+    <div class="sheet-add-row" id="wordAddRow">
+      <button type="button" class="sheet-add-toggle" id="wordAddToggle">+ New word</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="syncModal">
+  <div class="modal">
+    <h2>Sync across devices</h2>
+    <p class="note">Words are stored in a private Gist on your GitHub account. Create a personal access token scoped only to "gist" (it can't touch your repos), then paste it below — do this once per device.</p>
+    <p class="note">
+      <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Vattara%20Vazhakku%20sync" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;">Create a gist-only token on GitHub →</a>
+    </p>
+    <div class="field">
+      <label for="syncTokenInput">Sync key</label>
+      <input type="password" id="syncTokenInput" placeholder="ghp_…" autocomplete="off">
+    </div>
+    <div class="import-status" id="syncTokenStatus"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-small" id="removeSyncKey">Remove key</button>
+      <button class="btn btn-ghost btn-small" id="closeSyncModal">Close</button>
+      <button class="btn btn-primary btn-small" style="width:auto;margin-top:0;" id="saveSyncKey">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="backupModal">
+  <div class="modal">
+    <h2>Backup &amp; restore</h2>
+    <p class="note" id="backupNote">Checking how your words are stored…</p>
+    <div class="field">
+      <label>Your words, as JSON</label>
+      <textarea id="exportArea" readonly></textarea>
+    </div>
+    <div class="field">
+      <label>Paste JSON to restore <span class="opt">(adds anything new, skips duplicates)</span></label>
+      <textarea id="importArea" placeholder="paste backup JSON here"></textarea>
+    </div>
+    <div class="import-status" id="importStatus"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-small" id="closeBackup">Close</button>
+      <button class="btn btn-primary btn-small" style="width:auto;margin-top:0;" id="importBtn">Import</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = "vattara-vazhakku-words";
+
+  var GITHUB_API = "https://api.github.com";
+  var GIST_FILENAME = "vattara-vazhakku.json";
+  var TOKEN_KEY = "vattara-vazhakku-gh-token";
+  var GIST_ID_KEY = "vattara-vazhakku-gist-id";
+
+  var state = { words: [], regions: [] };
+  var pendingMutations = [];
+  var flushTimer = null;
+  var syncMode = "init";
+
+  function normalizeState(raw) {
+    if (raw && typeof raw === "object") {
+      return {
+        words: Array.isArray(raw.words) ? raw.words : [],
+        regions: Array.isArray(raw.regions) ? raw.regions : []
+      };
+    }
+    return { words: [], regions: [] };
+  }
+
+  function loadLocalCache() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? normalizeState(JSON.parse(raw)) : { words: [], regions: [] };
+    } catch (e) { return { words: [], regions: [] }; }
+  }
+
+  function cacheLocal() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  function getToken() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+  function setToken(t) { try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+  function getCachedGistId() { try { return localStorage.getItem(GIST_ID_KEY) || ""; } catch (e) { return ""; } }
+  function setCachedGistId(id) { try { localStorage.setItem(GIST_ID_KEY, id); } catch (e) {} }
+
+  function ghHeaders() {
+    return { "Authorization": "token " + getToken(), "Accept": "application/vnd.github+json" };
+  }
+
+  function setSyncStatus(mode) {
+    syncMode = mode;
+    var pill = document.getElementById("syncPill");
+    pill.classList.remove("ok", "err");
+    if (mode === "synced") { pill.textContent = "Synced across your devices"; pill.classList.add("ok"); }
+    else if (mode === "syncing") { pill.textContent = "Saving…"; pill.classList.add("ok"); }
+    else if (mode === "local") { pill.textContent = "Not set up — tap to add a sync key"; pill.classList.add("err"); }
+    else if (mode === "badtoken") { pill.textContent = "Sync key not working — tap to fix"; pill.classList.add("err"); }
+    else if (mode === "error") { pill.textContent = "Not synced — tap to retry"; pill.classList.add("err"); }
+    else { pill.textContent = "Checking sync…"; }
+  }
+
+  function findOrCreateGist() {
+    var cached = getCachedGistId();
+    if (cached) {
+      return fetch(GITHUB_API + "/gists/" + cached, { headers: ghHeaders() }).then(function (res) {
+        if (res.status === 401) return Promise.reject({ code: "bad_token" });
+        if (res.ok) return cached;
+        return searchOrCreateGist();
+      });
+    }
+    return searchOrCreateGist();
+  }
+
+  function searchOrCreateGist() {
+    return fetch(GITHUB_API + "/gists?per_page=100", { headers: ghHeaders() }).then(function (res) {
+      if (res.status === 401) return Promise.reject({ code: "bad_token" });
+      if (!res.ok) return Promise.reject({ code: "http_error" });
+      return res.json();
+    }).then(function (list) {
+      var found = list.find(function (g) { return g.files && g.files[GIST_FILENAME]; });
+      if (found) { setCachedGistId(found.id); return found.id; }
+      var body = { description: "Vattara Vazhakku word data", public: false, files: {} };
+      body.files[GIST_FILENAME] = { content: JSON.stringify({ words: [], regions: [] }) };
+      return fetch(GITHUB_API + "/gists", { method: "POST", headers: ghHeaders(), body: JSON.stringify(body) })
+        .then(function (res) {
+          if (res.status === 401) return Promise.reject({ code: "bad_token" });
+          if (!res.ok) return Promise.reject({ code: "http_error" });
+          return res.json();
+        })
+        .then(function (g) { setCachedGistId(g.id); return g.id; });
+    });
+  }
+
+  function queueMutation(mutateFn) {
+    state = mutateFn(state);
+    cacheLocal();
+    renderAll();
+    if (!getToken()) return;
+    pendingMutations.push(mutateFn);
+    setSyncStatus("syncing");
+    clearTimeout(flushTimer);
+    flushTimer = setTimeout(flushToRemote, 800);
+  }
+
+  function flushToRemote() {
+    if (!getToken() || !pendingMutations.length) return;
+    pendingMutations = [];
+    findOrCreateGist().then(function (gistId) {
+      var body = { files: {} };
+      body.files[GIST_FILENAME] = { content: JSON.stringify(state) };
+      return fetch(GITHUB_API + "/gists/" + gistId, { method: "PATCH", headers: ghHeaders(), body: JSON.stringify(body) });
+    }).then(function (res) {
+      if (res.status === 401) return Promise.reject({ code: "bad_token" });
+      if (!res.ok) return Promise.reject({ code: "http_error" });
+      setSyncStatus("synced");
+    }).catch(function (err) {
+      setSyncStatus(err && err.code === "bad_token" ? "badtoken" : "error");
+    });
+  }
+
+  function initSync() {
+    state = loadLocalCache();
+    renderAll();
+
+    if (!getToken()) { setSyncStatus("local"); return; }
+
+    setSyncStatus("syncing");
+    findOrCreateGist().then(function (gistId) {
+      return fetch(GITHUB_API + "/gists/" + gistId, { headers: ghHeaders() });
+    }).then(function (res) {
+      if (res.status === 401) return Promise.reject({ code: "bad_token" });
+      if (!res.ok) return Promise.reject({ code: "http_error" });
+      return res.json();
+    }).then(function (gist) {
+      var file = gist.files && gist.files[GIST_FILENAME];
+      var remote = file && file.content ? JSON.parse(file.content) : null;
+      state = normalizeState(remote);
+      cacheLocal();
+      renderAll();
+      setSyncStatus("synced");
+    }).catch(function (err) {
+      setSyncStatus(err && err.code === "bad_token" ? "badtoken" : "error");
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  function wordTitle(w) {
+    return w.formal || w.meaning || (w.variants[0] && w.variants[0].colloquial) || "Untitled word";
+  }
+
+  // ---------- regions ----------
+  function getAllRegions() {
+    var set = {};
+    state.regions.forEach(function (r) { if (r) set[r] = true; });
+    state.words.forEach(function (w) { w.variants.forEach(function (v) { if (v.region) set[v.region] = true; }); });
+    return Object.keys(set).sort(function (a, b) { return a.localeCompare(b); });
+  }
+
+  function addRegionMutation(name) {
+    return function (st) {
+      if (st.regions.indexOf(name) !== -1) return st;
+      return { words: st.words, regions: st.regions.concat([name]) };
+    };
+  }
+
+  function refreshRegionFilter() {
+    var sel = document.getElementById("regionFilter");
+    var current = sel.value;
+    var list = getAllRegions();
+    sel.innerHTML = '<option value="">All regions</option>' +
+      list.map(function (r) { return '<option value="' + escapeHtml(r) + '">' + escapeHtml(r) + '</option>'; }).join("");
+    if (list.indexOf(current) !== -1) sel.value = current;
+  }
+
+  // ---------- region picker sheet ----------
+  var regionSheet = document.getElementById("regionSheet");
+  var regionSheetList = document.getElementById("regionSheetList");
+  var regionAddRow = document.getElementById("regionAddRow");
+  var regionPickerOnSelect = null;
+
+  function closeRegionSheet() {
+    regionSheet.classList.remove("open");
+    regionPickerOnSelect = null;
+  }
+
+  function resetRegionAddRow() {
+    regionAddRow.innerHTML = '<button type="button" class="sheet-add-toggle" id="regionAddToggle">+ Add region</button>';
+    document.getElementById("regionAddToggle").addEventListener("click", showRegionAddForm);
+  }
+
+  function showRegionAddForm() {
+    regionAddRow.innerHTML =
+      '<div class="sheet-add-form">' +
+        '<input type="text" id="regionNewInput" placeholder="New region name" autocomplete="off">' +
+        '<button type="button" class="btn btn-primary btn-small" style="width:auto;margin-top:0;" id="regionNewSave">Save</button>' +
+      '</div>';
+    var input = document.getElementById("regionNewInput");
+    input.focus();
+    function commit() {
+      var name = input.value.trim();
+      if (!name) return;
+      queueMutation(addRegionMutation(name));
+      if (regionPickerOnSelect) regionPickerOnSelect(name);
+      closeRegionSheet();
+    }
+    document.getElementById("regionNewSave").addEventListener("click", commit);
+    input.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") { ev.preventDefault(); commit(); }
+    });
+  }
+
+  function renderRegionSheetList(currentValue) {
+    var list = getAllRegions();
+    if (!list.length) {
+      regionSheetList.innerHTML = '<div class="sheet-empty">No regions yet — add your first one below.</div>';
+      return;
+    }
+    regionSheetList.innerHTML = list.map(function (r) {
+      var sel = r === currentValue ? " selected" : "";
+      return '<button type="button" class="sheet-option' + sel + '" data-region="' + escapeHtml(r) + '">' + escapeHtml(r) + '</button>';
+    }).join("");
+    regionSheetList.querySelectorAll(".sheet-option").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var name = btn.dataset.region;
+        if (regionPickerOnSelect) regionPickerOnSelect(name);
+        closeRegionSheet();
+      });
+    });
+  }
+
+  function openRegionPicker(currentValue, onSelect) {
+    regionPickerOnSelect = onSelect;
+    renderRegionSheetList(currentValue);
+    resetRegionAddRow();
+    regionSheet.classList.add("open");
+  }
+
+  document.getElementById("regionSheetClose").addEventListener("click", closeRegionSheet);
+  regionSheet.addEventListener("click", function (ev) {
+    if (ev.target === regionSheet) closeRegionSheet();
+  });
+
+  function setRegionTrigger(labelEl, hiddenEl, value) {
+    hiddenEl.value = value || "";
+    if (value) {
+      labelEl.textContent = value;
+      labelEl.classList.remove("placeholder");
+    } else {
+      labelEl.textContent = "Select a region";
+      labelEl.classList.add("placeholder");
+    }
+  }
+
+  // ---------- word picker sheet ----------
+  var wordSheet = document.getElementById("wordSheet");
+  var wordSheetList = document.getElementById("wordSheetList");
+  var wordAddRow = document.getElementById("wordAddRow");
+  var wordSearchInput = document.getElementById("wordSearchInput");
+  var wordPickerOnSelect = null;
+  var wordPickerCurrentId = null;
+
+  function closeWordSheet() {
+    wordSheet.classList.remove("open");
+    wordPickerOnSelect = null;
+    wordSearchInput.value = "";
+  }
+
+  function resetWordAddRow() {
+    wordAddRow.innerHTML = '<button type="button" class="sheet-add-toggle" id="wordAddToggle">+ New word</button>';
+    document.getElementById("wordAddToggle").addEventListener("click", showWordAddForm);
+  }
+
+  function showWordAddForm() {
+    wordAddRow.innerHTML =
+      '<div class="sheet-add-form-fields">' +
+        '<input type="text" id="wordNewFormal" lang="ta" placeholder="Literary / formal form (optional)" autocomplete="off">' +
+        '<input type="text" id="wordNewMeaning" placeholder="Meaning / gloss (optional)" autocomplete="off">' +
+        '<button type="button" class="btn btn-primary btn-small" id="wordNewSave">Save &amp; select</button>' +
+      '</div>';
+    document.getElementById("wordNewFormal").focus();
+    document.getElementById("wordNewSave").addEventListener("click", function () {
+      var formal = document.getElementById("wordNewFormal").value.trim();
+      var meaning = document.getElementById("wordNewMeaning").value.trim();
+      var newWord = { id: uid(), formal: formal, meaning: meaning, createdAt: new Date().toISOString(), variants: [] };
+      queueMutation(function (st) { return { words: [newWord].concat(st.words), regions: st.regions }; });
+      if (wordPickerOnSelect) wordPickerOnSelect(newWord.id);
+      closeWordSheet();
+    });
+  }
+
+  function renderWordSheetList() {
+    var q = wordSearchInput.value.trim().toLowerCase();
+    var list = state.words.filter(function (w) {
+      if (!q) return true;
+      var hay = [w.formal, w.meaning].concat(w.variants.map(function (v) { return v.colloquial + " " + v.region; })).join(" ").toLowerCase();
+      return hay.indexOf(q) !== -1;
+    }).slice().sort(function (a, b) { return wordTitle(a).localeCompare(wordTitle(b)); });
+
+    if (!list.length) {
+      wordSheetList.innerHTML = '<div class="sheet-empty">' + (state.words.length ? "No words match that search." : "No words yet — add your first one below.") + '</div>';
+      return;
+    }
+    wordSheetList.innerHTML = list.map(function (w) {
+      var sel = w.id === wordPickerCurrentId ? " selected" : "";
+      var title = wordTitle(w);
+      var showMeaning = w.meaning && w.meaning !== title;
+      return '<button type="button" class="sheet-option word-option' + sel + '" data-word="' + w.id + '">' +
+        '<span class="wo-main"><span class="wo-title" lang="ta">' + escapeHtml(title) + '</span>' +
+        (showMeaning ? '<span class="wo-sub">' + escapeHtml(w.meaning) + '</span>' : '') + '</span>' +
+        '<span class="wo-count">' + w.variants.length + ' region' + (w.variants.length === 1 ? '' : 's') + '</span>' +
+      '</button>';
+    }).join("");
+    wordSheetList.querySelectorAll(".word-option").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.dataset.word;
+        if (wordPickerOnSelect) wordPickerOnSelect(id);
+        closeWordSheet();
+      });
+    });
+  }
+
+  function openWordPicker(currentId, onSelect) {
+    wordPickerCurrentId = currentId;
+    wordPickerOnSelect = onSelect;
+    wordSearchInput.value = "";
+    renderWordSheetList();
+    resetWordAddRow();
+    wordSheet.classList.add("open");
+  }
+
+  document.getElementById("wordSheetClose").addEventListener("click", closeWordSheet);
+  wordSheet.addEventListener("click", function (ev) { if (ev.target === wordSheet) closeWordSheet(); });
+  wordSearchInput.addEventListener("input", renderWordSheetList);
+
+  function setWordTrigger(labelEl, hiddenEl, refEl, wordId) {
+    hiddenEl.value = wordId || "";
+    if (!wordId) {
+      labelEl.textContent = "Select a word";
+      labelEl.classList.add("placeholder");
+      refEl.style.display = "none";
+      return;
+    }
+    var w = state.words.find(function (x) { return x.id === wordId; });
+    if (!w) {
+      labelEl.textContent = "Select a word";
+      labelEl.classList.add("placeholder");
+      refEl.style.display = "none";
+      return;
+    }
+    var title = wordTitle(w);
+    labelEl.textContent = title;
+    labelEl.classList.remove("placeholder");
+    if (w.meaning && w.meaning !== title) {
+      refEl.textContent = w.meaning;
+      refEl.style.display = "block";
+    } else {
+      refEl.style.display = "none";
+    }
+  }
+
+  // ---------- tabs ----------
+  var tabButtons = document.querySelectorAll("nav.tabs button");
+  tabButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      tabButtons.forEach(function (b) { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
+      document.querySelectorAll("section.view").forEach(function (v) { v.classList.remove("active"); });
+      document.getElementById("view-" + btn.dataset.view).classList.add("active");
+      if (btn.dataset.view === "words") renderWords();
+    });
+  });
+
+  // ---------- add form ----------
+  var addForm = document.getElementById("addForm");
+  var addRegionTrigger = document.getElementById("f-region-trigger");
+  var addRegionLabel = document.getElementById("f-region-label");
+  var addRegionHidden = document.getElementById("f-region");
+  var addWordTrigger = document.getElementById("f-word-trigger");
+  var addWordLabel = document.getElementById("f-word-label");
+  var addWordHidden = document.getElementById("f-word-id");
+  var addWordRef = document.getElementById("f-word-ref");
+
+  addRegionTrigger.addEventListener("click", function () {
+    openRegionPicker(addRegionHidden.value, function (region) {
+      setRegionTrigger(addRegionLabel, addRegionHidden, region);
+    });
+  });
+
+  addWordTrigger.addEventListener("click", function () {
+    openWordPicker(addWordHidden.value, function (wordId) {
+      setWordTrigger(addWordLabel, addWordHidden, addWordRef, wordId);
+    });
+  });
+
+  addForm.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var colloquialInput = document.getElementById("f-colloquial");
+    var colloquial = colloquialInput.value.trim();
+    var wordId = addWordHidden.value;
+    var region = addRegionHidden.value.trim();
+    if (!colloquial) { colloquialInput.focus(); return; }
+    if (!wordId) { addWordTrigger.focus(); return; }
+    if (!region) { addRegionTrigger.focus(); return; }
+
+    var newVariant = {
+      id: uid(),
+      region: region,
+      colloquial: colloquial,
+      createdAt: new Date().toISOString()
+    };
+    queueMutation(function (st) {
+      return {
+        words: st.words.map(function (w) {
+          if (w.id !== wordId) return w;
+          return { id: w.id, formal: w.formal, meaning: w.meaning, createdAt: w.createdAt, variants: [newVariant].concat(w.variants) };
+        }),
+        regions: st.regions
+      };
+    });
+
+    colloquialInput.value = "";
+    setRegionTrigger(addRegionLabel, addRegionHidden, region);
+    colloquialInput.focus();
+
+    var toast = document.getElementById("addToast");
+    var totalVariants = 0;
+    state.words.forEach(function (w) { totalVariants += w.variants.length; });
+    toast.textContent = "Saved · " + totalVariants + " versions collected so far";
+    setTimeout(function () { if (toast.textContent.indexOf("Saved") === 0) toast.textContent = ""; }, 2500);
+  });
+
+  function renderAll() {
+    refreshRegionFilter();
+    renderRecent();
+    renderWords();
+  }
+
+  function getRecentVariants(n) {
+    var flat = [];
+    state.words.forEach(function (w) {
+      w.variants.forEach(function (v) { flat.push({ word: w, variant: v }); });
+    });
+    flat.sort(function (a, b) { return new Date(b.variant.createdAt) - new Date(a.variant.createdAt); });
+    return flat.slice(0, n);
+  }
+
+  function recentVariantHtml(word, v) {
+    var title = wordTitle(word);
+    return '<li class="entry">' +
+      '<div class="variant-word-ref" lang="ta">' + escapeHtml(title) + (word.meaning && word.meaning !== title ? ' · ' + escapeHtml(word.meaning) : '') + '</div>' +
+      '<div class="entry-head"><div class="entry-word" lang="ta">' + escapeHtml(v.colloquial) + '</div></div>' +
+      '<div class="chiprow"><span class="chip">' + escapeHtml(v.region) + '</span><span class="chip date">' + fmtDate(v.createdAt) + '</span></div>' +
+    '</li>';
+  }
+
+  function renderRecent() {
+    var wrap = document.getElementById("recentWrap");
+    var recent = getRecentVariants(3);
+    if (!recent.length) { wrap.innerHTML = ""; return; }
+    wrap.innerHTML = '<div class="recent-title">Recently added</div><ul class="entries">' +
+      recent.map(function (r) { return recentVariantHtml(r.word, r.variant); }).join("") + "</ul>";
+  }
+
+  // ---------- word cards (Words tab) ----------
+  var expandedWords = {};
+
+  function variantRowHtml(w, v) {
+    return '<li class="variant-item" data-word="' + w.id + '" data-variant="' + v.id + '">' +
+      '<span class="variant-region">' + escapeHtml(v.region) + '</span>' +
+      '<span class="variant-word" lang="ta">' + escapeHtml(v.colloquial) + '</span>' +
+      '<span class="variant-actions">' +
+        '<button class="edit-variant" title="Edit" aria-label="Edit">✎</button>' +
+        '<button class="del-variant" title="Delete" aria-label="Delete">✕</button>' +
+      '</span>' +
+    '</li>';
+  }
+
+  function variantEditHtml(w, v) {
+    return '<li class="variant-item variant-edit" data-word="' + w.id + '" data-variant="' + v.id + '">' +
+      '<div class="edit-form">' +
+        '<div class="field"><label>Word as heard</label><input type="text" lang="ta" class="ev-colloquial" value="' + escapeHtml(v.colloquial) + '"></div>' +
+        '<div class="field">' +
+          '<label>Region / accent</label>' +
+          '<button type="button" class="region-trigger ev-region-trigger">' +
+            '<span class="val ev-region-label">' + escapeHtml(v.region) + '</span><span class="chev">▾</span>' +
+          '</button>' +
+          '<input type="hidden" class="ev-region" value="' + escapeHtml(v.region) + '">' +
+        '</div>' +
+        '<div class="edit-actions">' +
+          '<button class="btn btn-primary btn-small save-variant-edit" style="width:auto;margin-top:0;">Save</button>' +
+          '<button class="btn btn-ghost btn-small cancel-variant-edit">Cancel</button>' +
+        '</div>' +
+      '</div>' +
+    '</li>';
+  }
+
+  function variantAddFormHtml(w) {
+    return '<li class="variant-item variant-add-form" data-word="' + w.id + '">' +
+      '<div class="edit-form">' +
+        '<div class="field"><label>Word as heard</label><input type="text" lang="ta" class="nv-colloquial" placeholder="எப்படி சொன்னாங்க" autocomplete="off"></div>' +
+        '<div class="field">' +
+          '<label>Region / accent</label>' +
+          '<button type="button" class="region-trigger nv-region-trigger"><span class="val placeholder nv-region-label">Select a region</span><span class="chev">▾</span></button>' +
+          '<input type="hidden" class="nv-region">' +
+        '</div>' +
+        '<div class="edit-actions">' +
+          '<button class="btn btn-primary btn-small save-new-variant" style="width:auto;margin-top:0;">Save</button>' +
+          '<button class="btn btn-ghost btn-small cancel-new-variant">Cancel</button>' +
+        '</div>' +
+      '</div>' +
+    '</li>';
+  }
+
+  function wordEditHeadHtml(w) {
+    return '<div class="word-card-head">' +
+      '<div class="edit-form" style="flex:1;">' +
+        '<div class="field"><label>Literary / formal form</label><input type="text" lang="ta" class="ew-formal" value="' + escapeHtml(w.formal || "") + '"></div>' +
+        '<div class="field"><label>Meaning / gloss</label><input type="text" class="ew-meaning" value="' + escapeHtml(w.meaning || "") + '"></div>' +
+        '<div class="edit-actions">' +
+          '<button class="btn btn-primary btn-small save-word-edit" style="width:auto;margin-top:0;">Save</button>' +
+          '<button class="btn btn-ghost btn-small cancel-word-edit">Cancel</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function wordCardHtml(w, displayVariants) {
+    var title = wordTitle(w);
+    var showMeaning = w.meaning && w.meaning !== title;
+    var variants = displayVariants.slice().sort(function (a, b) { return a.region.localeCompare(b.region); });
+    var expandedClass = expandedWords[w.id] ? " expanded" : "";
+    return '<li class="word-card' + expandedClass + '" data-word="' + w.id + '">' +
+      '<div class="word-card-head">' +
+        '<button type="button" class="word-card-toggle">' +
+          '<span class="word-card-title-wrap">' +
+            '<span class="word-card-title" lang="ta">' + escapeHtml(title) + '</span>' +
+            (showMeaning ? '<div class="word-card-meaning">' + escapeHtml(w.meaning) + '</div>' : '') +
+          '</span>' +
+          '<span class="chev">▾</span>' +
+        '</button>' +
+        '<div class="entry-actions">' +
+          '<button class="edit-word" title="Edit word" aria-label="Edit word">✎</button>' +
+          '<button class="add-variant-btn" title="Add a regional version" aria-label="Add a regional version">+</button>' +
+        '</div>' +
+      '</div>' +
+      '<ul class="variant-list">' + variants.map(function (v) { return variantRowHtml(w, v); }).join("") + '</ul>' +
+    '</li>';
+  }
+
+  function wireWordList(container) {
+    container.querySelectorAll(".word-card").forEach(function (li) {
+      var wordId = li.dataset.word;
+
+      var toggleBtn = li.querySelector(".word-card-toggle");
+      if (toggleBtn) toggleBtn.addEventListener("click", function () {
+        expandedWords[wordId] = !expandedWords[wordId];
+        li.classList.toggle("expanded", expandedWords[wordId]);
+      });
+
+      var editWordBtn = li.querySelector(".edit-word");
+      if (editWordBtn) editWordBtn.addEventListener("click", function () {
+        var w = state.words.find(function (x) { return x.id === wordId; });
+        if (!w) return;
+        li.querySelector(".word-card-head").outerHTML = wordEditHeadHtml(w);
+        li.querySelector(".save-word-edit").addEventListener("click", function () {
+          var formal = li.querySelector(".ew-formal").value.trim();
+          var meaning = li.querySelector(".ew-meaning").value.trim();
+          queueMutation(function (st) {
+            return {
+              words: st.words.map(function (x) {
+                if (x.id !== wordId) return x;
+                return { id: x.id, formal: formal, meaning: meaning, createdAt: x.createdAt, variants: x.variants };
+              }),
+              regions: st.regions
+            };
+          });
+        });
+        li.querySelector(".cancel-word-edit").addEventListener("click", renderWords);
+      });
+
+      li.querySelectorAll(".edit-variant").forEach(function (btn) {
+        var item = btn.closest(".variant-item");
+        var variantId = item.dataset.variant;
+        btn.addEventListener("click", function () {
+          var w = state.words.find(function (x) { return x.id === wordId; });
+          var v = w && w.variants.find(function (x) { return x.id === variantId; });
+          if (!v) return;
+          item.outerHTML = variantEditHtml(w, v);
+          var newItem = container.querySelector('.variant-item[data-variant="' + variantId + '"]');
+          var evTrigger = newItem.querySelector(".ev-region-trigger");
+          var evLabel = newItem.querySelector(".ev-region-label");
+          var evHidden = newItem.querySelector(".ev-region");
+          evTrigger.addEventListener("click", function () {
+            openRegionPicker(evHidden.value, function (region) { setRegionTrigger(evLabel, evHidden, region); });
+          });
+          newItem.querySelector(".save-variant-edit").addEventListener("click", function () {
+            var updated = {
+              colloquial: newItem.querySelector(".ev-colloquial").value.trim() || v.colloquial,
+              region: evHidden.value.trim() || v.region
+            };
+            queueMutation(function (st) {
+              return {
+                words: st.words.map(function (x) {
+                  if (x.id !== wordId) return x;
+                  return {
+                    id: x.id, formal: x.formal, meaning: x.meaning, createdAt: x.createdAt,
+                    variants: x.variants.map(function (vv) {
+                      if (vv.id !== variantId) return vv;
+                      return { id: vv.id, region: updated.region, colloquial: updated.colloquial, createdAt: vv.createdAt };
+                    })
+                  };
+                }),
+                regions: st.regions
+              };
+            });
+          });
+          newItem.querySelector(".cancel-variant-edit").addEventListener("click", renderWords);
+        });
+      });
+
+      li.querySelectorAll(".del-variant").forEach(function (btn) {
+        var item = btn.closest(".variant-item");
+        var variantId = item.dataset.variant;
+        btn.addEventListener("click", function () {
+          var w = state.words.find(function (x) { return x.id === wordId; });
+          var v = w && w.variants.find(function (x) { return x.id === variantId; });
+          if (!v) return;
+          var lastOne = w.variants.length === 1;
+          var msg = lastOne ?
+            "Delete the only version of “" + wordTitle(w) + "”? This removes the whole word." :
+            "Delete this " + v.region + " version (“" + v.colloquial + "”)?";
+          if (!confirm(msg)) return;
+          queueMutation(function (st) {
+            return {
+              words: st.words.map(function (x) {
+                if (x.id !== wordId) return x;
+                return {
+                  id: x.id, formal: x.formal, meaning: x.meaning, createdAt: x.createdAt,
+                  variants: x.variants.filter(function (vv) { return vv.id !== variantId; })
+                };
+              }).filter(function (x) { return x.variants.length > 0; }),
+              regions: st.regions
+            };
+          });
+        });
+      });
+
+      var addBtn = li.querySelector(".add-variant-btn");
+      if (addBtn) addBtn.addEventListener("click", function () {
+        var w = state.words.find(function (x) { return x.id === wordId; });
+        if (!w) return;
+        expandedWords[wordId] = true;
+        li.classList.add("expanded");
+        li.querySelector(".variant-list").insertAdjacentHTML("beforeend", variantAddFormHtml(w));
+        var newItem = li.querySelector(".variant-add-form");
+        var nvTrigger = newItem.querySelector(".nv-region-trigger");
+        var nvLabel = newItem.querySelector(".nv-region-label");
+        var nvHidden = newItem.querySelector(".nv-region");
+        nvTrigger.addEventListener("click", function () {
+          openRegionPicker(nvHidden.value, function (region) { setRegionTrigger(nvLabel, nvHidden, region); });
+        });
+        newItem.querySelector(".save-new-variant").addEventListener("click", function () {
+          var colloquial = newItem.querySelector(".nv-colloquial").value.trim();
+          var region = nvHidden.value.trim();
+          if (!colloquial || !region) return;
+          var variant = { id: uid(), region: region, colloquial: colloquial, createdAt: new Date().toISOString() };
+          queueMutation(function (st) {
+            return {
+              words: st.words.map(function (x) {
+                if (x.id !== wordId) return x;
+                return { id: x.id, formal: x.formal, meaning: x.meaning, createdAt: x.createdAt, variants: [variant].concat(x.variants) };
+              }),
+              regions: st.regions
+            };
+          });
+        });
+        newItem.querySelector(".cancel-new-variant").addEventListener("click", renderWords);
+      });
+    });
+  }
+
+  // ---------- words tab: search + filter ----------
+  var searchInput = document.getElementById("search");
+  var regionFilter = document.getElementById("regionFilter");
+  searchInput.addEventListener("input", renderWords);
+  regionFilter.addEventListener("change", renderWords);
+
+  function getFilteredWords() {
+    var q = searchInput.value.trim().toLowerCase();
+    var rf = regionFilter.value;
+    var out = [];
+    state.words.forEach(function (w) {
+      var displayVariants = rf ? w.variants.filter(function (v) { return v.region === rf; }) : w.variants;
+      if (rf && !displayVariants.length) return;
+      if (q) {
+        var wordHay = [w.formal, w.meaning].join(" ").toLowerCase();
+        var wordMatches = wordHay.indexOf(q) !== -1;
+        if (!wordMatches) {
+          displayVariants = displayVariants.filter(function (v) {
+            return (v.colloquial + " " + v.region).toLowerCase().indexOf(q) !== -1;
+          });
+          if (!displayVariants.length) return;
+        }
+      }
+      out.push({ word: w, displayVariants: displayVariants });
+    });
+    return out;
+  }
+
+  function renderWords() {
+    var results = getFilteredWords();
+    var totalVariants = 0;
+    state.words.forEach(function (w) { totalVariants += w.variants.length; });
+    document.getElementById("countLabel").textContent =
+      results.length + " word" + (results.length === 1 ? "" : "s") + " · " + totalVariants + " version" + (totalVariants === 1 ? "" : "s");
+    var regionCount = getAllRegions().length;
+    document.getElementById("regionCountLabel").textContent = regionCount + " region" + (regionCount === 1 ? "" : "s");
+
+    var list = document.getElementById("wordList");
+    var empty = document.getElementById("wordsEmptyState");
+    if (!results.length) {
+      list.innerHTML = "";
+      empty.style.display = "block";
+      if (state.words.length) {
+        empty.querySelector(".ta").textContent = "எதுவும் கிடைக்கவில்லை";
+        empty.querySelector(".en").textContent = "No words match that search.";
+      } else {
+        empty.querySelector(".ta").textContent = "இன்னும் ஒன்றுமில்லை";
+        empty.querySelector(".en").textContent = "Nothing collected yet — add your first word.";
+      }
+      return;
+    }
+    empty.style.display = "none";
+    list.innerHTML = results.map(function (r) { return wordCardHtml(r.word, r.displayVariants); }).join("");
+    wireWordList(list);
+  }
+
+  // ---------- backup modal ----------
+  var backupModal = document.getElementById("backupModal");
+  document.getElementById("backupBtn").addEventListener("click", function () {
+    document.getElementById("exportArea").value = JSON.stringify(state, null, 2);
+    document.getElementById("importArea").value = "";
+    document.getElementById("importStatus").textContent = "";
+    document.getElementById("backupNote").textContent = getToken() ?
+      "Your words sync automatically through your GitHub sync key, so they show up on every device where you've entered it. This panel is just a manual copy — handy for an external backup." :
+      "Sync isn't set up on this device yet (tap the status line above the tabs), so words are saved only in this browser. Copy the text below somewhere safe now and then, or paste it back in later to restore.";
+    backupModal.classList.add("open");
+  });
+  document.getElementById("closeBackup").addEventListener("click", function () {
+    backupModal.classList.remove("open");
+  });
+  backupModal.addEventListener("click", function (ev) {
+    if (ev.target === backupModal) backupModal.classList.remove("open");
+  });
+
+  document.getElementById("importBtn").addEventListener("click", function () {
+    var status = document.getElementById("importStatus");
+    var raw = document.getElementById("importArea").value.trim();
+    if (!raw) { status.textContent = "Paste some JSON first."; status.style.color = "var(--danger)"; return; }
+    var incoming;
+    try { incoming = JSON.parse(raw); } catch (e) {
+      status.textContent = "That doesn't look like valid JSON.";
+      status.style.color = "var(--danger)";
+      return;
+    }
+    if (!incoming || !Array.isArray(incoming.words)) {
+      status.textContent = "Expected a backup with a “words” list.";
+      status.style.color = "var(--danger)";
+      return;
+    }
+    var incomingRegions = Array.isArray(incoming.regions) ? incoming.regions : [];
+    var addedWords = 0, addedVariants = 0;
+    queueMutation(function (st) {
+      var words = st.words.slice();
+      incoming.words.forEach(function (iw) {
+        if (!iw || !Array.isArray(iw.variants)) return;
+        var idx = iw.formal ? words.findIndex(function (w) { return w.formal && w.formal === iw.formal; }) : -1;
+        var target;
+        if (idx === -1) {
+          target = { id: uid(), formal: iw.formal || "", meaning: iw.meaning || "", createdAt: iw.createdAt || new Date().toISOString(), variants: [] };
+          words = [target].concat(words);
+          addedWords++;
+        } else {
+          target = { id: words[idx].id, formal: words[idx].formal, meaning: words[idx].meaning, createdAt: words[idx].createdAt, variants: words[idx].variants.slice() };
+          words[idx] = target;
+        }
+        var existingKeys = {};
+        target.variants.forEach(function (v) { existingKeys[v.colloquial + "||" + v.region] = true; });
+        iw.variants.forEach(function (iv) {
+          if (!iv || !iv.colloquial || !iv.region) return;
+          var key = iv.colloquial + "||" + iv.region;
+          if (existingKeys[key]) return;
+          existingKeys[key] = true;
+          target.variants = [{ id: iv.id || uid(), region: iv.region, colloquial: iv.colloquial, createdAt: iv.createdAt || new Date().toISOString() }].concat(target.variants);
+          addedVariants++;
+        });
+      });
+      var regionSet = {};
+      st.regions.forEach(function (r) { regionSet[r] = true; });
+      incomingRegions.forEach(function (r) { regionSet[r] = true; });
+      return { words: words, regions: Object.keys(regionSet) };
+    });
+    document.getElementById("exportArea").value = JSON.stringify(state, null, 2);
+    status.style.color = "var(--accent)";
+    status.textContent = addedVariants ?
+      ("Imported " + addedVariants + " version" + (addedVariants === 1 ? "" : "s") + (addedWords ? " across " + addedWords + " new word" + (addedWords === 1 ? "" : "s") : "") + ".") :
+      "Nothing new — already have all of these.";
+  });
+
+  // ---------- sync setup modal ----------
+  var syncModal = document.getElementById("syncModal");
+  var syncTokenInput = document.getElementById("syncTokenInput");
+  var syncTokenStatus = document.getElementById("syncTokenStatus");
+
+  function openSyncModal() {
+    syncTokenInput.value = getToken();
+    syncTokenStatus.textContent = "";
+    syncModal.classList.add("open");
+  }
+  function closeSyncModal() { syncModal.classList.remove("open"); }
+
+  document.getElementById("syncPill").addEventListener("click", function () {
+    if (syncMode === "error") { flushToRemote(); return; }
+    openSyncModal();
+  });
+  document.getElementById("closeSyncModal").addEventListener("click", closeSyncModal);
+  syncModal.addEventListener("click", function (ev) { if (ev.target === syncModal) closeSyncModal(); });
+
+  document.getElementById("saveSyncKey").addEventListener("click", function () {
+    var token = syncTokenInput.value.trim();
+    if (!token) { syncTokenStatus.textContent = "Paste a token first."; syncTokenStatus.style.color = "var(--danger)"; return; }
+    syncTokenStatus.textContent = "Checking…";
+    syncTokenStatus.style.color = "var(--ink-soft)";
+    setToken(token);
+    setCachedGistId("");
+    initSync();
+    setTimeout(function () {
+      if (syncMode === "synced") {
+        syncTokenStatus.textContent = "Connected — this device is syncing.";
+        syncTokenStatus.style.color = "var(--accent)";
+        setTimeout(closeSyncModal, 900);
+      } else if (syncMode === "badtoken") {
+        syncTokenStatus.textContent = "That key didn't work — check it has “gist” access and try again.";
+        syncTokenStatus.style.color = "var(--danger)";
+      } else {
+        syncTokenStatus.textContent = "Couldn't reach GitHub — check your connection and try again.";
+        syncTokenStatus.style.color = "var(--danger)";
+      }
+    }, 1200);
+  });
+
+  document.getElementById("removeSyncKey").addEventListener("click", function () {
+    setToken("");
+    setCachedGistId("");
+    syncTokenInput.value = "";
+    setSyncStatus("local");
+    syncTokenStatus.textContent = "Sync key removed — this device is local only now.";
+    syncTokenStatus.style.color = "var(--ink-soft)";
+  });
+
+  // ---------- init ----------
+  initSync();
+})();
+</script>
