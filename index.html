@@ -835,14 +835,14 @@
     state = loadLocalCache();
     renderAll();
 
-    if (!getToken()) { setSyncStatus("local"); return; }
+    if (!getToken()) { setSyncStatus("local"); return Promise.resolve(); }
 
     setSyncStatus("syncing");
-    findOrCreateGist().then(function (gistId) {
+    return findOrCreateGist().then(function (gistId) {
       return fetch(GITHUB_API + "/gists/" + gistId, { headers: ghHeaders() });
     }).then(function (res) {
       if (res.status === 401) return Promise.reject({ code: "bad_token" });
-      if (!res.ok) return Promise.reject({ code: "http_error" });
+      if (!res.ok) return Promise.reject({ code: "http_error", status: res.status });
       return res.json();
     }).then(function (gist) {
       var file = gist.files && gist.files[GIST_FILENAME];
@@ -1558,8 +1558,7 @@
     syncTokenStatus.style.color = "var(--ink-soft)";
     setToken(token);
     setCachedGistId("");
-    initSync();
-    setTimeout(function () {
+    initSync().then(function () {
       if (syncMode === "synced") {
         syncTokenStatus.textContent = "Connected — this device is syncing.";
         syncTokenStatus.style.color = "var(--accent)";
@@ -1568,10 +1567,10 @@
         syncTokenStatus.textContent = "That key didn't work — check it has “gist” access and try again.";
         syncTokenStatus.style.color = "var(--danger)";
       } else {
-        syncTokenStatus.textContent = "Couldn't reach GitHub — check your connection and try again.";
+        syncTokenStatus.textContent = "GitHub rejected the request — check the key and try again.";
         syncTokenStatus.style.color = "var(--danger)";
       }
-    }, 1200);
+    });
   });
 
   document.getElementById("removeSyncKey").addEventListener("click", function () {
