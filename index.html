@@ -125,26 +125,8 @@
     font-weight: 600;
   }
 
-  .section-label {
-    display: flex;
-    align-items: baseline;
-    gap: 0.45rem;
-    margin: 1.3rem 0 0.7rem;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 700;
-    color: var(--ink-faint);
-  }
-  .section-label .ta {
-    font-family: "Baloo Thambi 2", sans-serif;
-    font-size: 1rem;
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--ink-soft);
-    font-weight: 600;
-  }
-  #view-add .section-label { margin-top: 0; }
+  #view-add { padding-top: 0.6rem; }
+  #view-words { padding-top: 1.3rem; }
 
   .sync-pill {
     font-family: "JetBrains Mono", monospace;
@@ -209,7 +191,6 @@
     font-weight: 600;
     color: var(--ink-faint);
   }
-  .field label .req { color: var(--danger); }
   .field label .opt { text-transform: none; letter-spacing: 0; font-weight: 500; opacity: 0.75; }
 
   input[type="text"], textarea, select {
@@ -594,15 +575,12 @@
 
   <!-- ADD -->
   <section id="view-add">
-    <div class="section-label"><span class="ta">சேர்</span><span>Add</span></div>
     <div class="panel">
       <form id="addForm">
         <div class="field">
-          <label for="f-colloquial">Word as heard <span class="req">*</span></label>
           <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required>
         </div>
         <div class="field">
-          <label for="f-word-trigger">Which word is this <span class="req">*</span></label>
           <button type="button" class="region-trigger" id="f-word-trigger">
             <span class="val placeholder" id="f-word-label">Select a word</span>
             <span class="chev">▾</span>
@@ -611,7 +589,6 @@
           <div class="word-ref" id="f-word-ref" style="display:none;"></div>
         </div>
         <div class="field">
-          <label for="f-region-trigger">Region / accent <span class="req">*</span></label>
           <button type="button" class="region-trigger" id="f-region-trigger">
             <span class="val placeholder" id="f-region-label">Select a region</span>
             <span class="chev">▾</span>
@@ -627,7 +604,6 @@
 
   <!-- WORDS -->
   <section id="view-words">
-    <div class="section-label"><span class="ta">சொற்கள்</span><span>Words</span></div>
     <div class="searchbar">
       <input type="text" id="search" placeholder="Search words, meanings, notes…" autocomplete="off">
       <select id="regionFilter"><option value="">All regions</option></select>
