@@ -430,6 +430,37 @@
   .region-trigger .val.placeholder { color: var(--ink-faint); }
   .region-trigger .chev { color: var(--ink-faint); flex-shrink: 0; font-size: 0.8rem; }
 
+  .field-autocomplete { position: relative; }
+  .suggest-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.35rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    box-shadow: var(--shadow);
+    max-height: 14rem;
+    overflow-y: auto;
+    z-index: 15;
+    list-style: none;
+    padding: 0.3rem;
+  }
+  .suggest-list.open { display: block; }
+  .suggest-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .suggest-item:hover { background: var(--accent-soft); }
+  .suggest-item .si-title { font-size: 1rem; font-family: "Catamaran", "Noto Sans Tamil", sans-serif; }
+  .suggest-item .si-sub { font-size: 0.75rem; color: var(--ink-faint); }
+
   .sheet-backdrop {
     display: none;
     position: fixed; inset: 0;
@@ -460,7 +491,6 @@
     flex-shrink: 0;
   }
   .sheet-head h2 { font-family: "Baloo Thambi 2", sans-serif; font-size: 1.05rem; margin: 0; }
-  .sheet-search-wrap { padding: 0.7rem 0.9rem 0; flex-shrink: 0; }
   .sheet-list {
     overflow-y: auto;
     padding: 0.4rem 0.5rem;
@@ -484,11 +514,6 @@
   .sheet-option:hover { background: var(--accent-soft); }
   .sheet-option.selected { color: var(--accent); font-weight: 700; }
   .sheet-option.selected::after { content: "✓"; flex-shrink: 0; margin-left: 0.5rem; }
-  .word-option { align-items: center; }
-  .wo-main { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
-  .wo-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .wo-sub { font-size: 0.78rem; font-weight: 500; color: var(--ink-faint); }
-  .wo-count { font-size: 0.75rem; font-weight: 500; color: var(--ink-faint); flex-shrink: 0; margin-left: 0.6rem; font-family: "JetBrains Mono", monospace; }
   .sheet-empty { padding: 1.4rem 0.7rem; color: var(--ink-faint); font-size: 0.9rem; text-align: center; }
   .sheet-add-row {
     flex-shrink: 0;
@@ -580,13 +605,11 @@
         <div class="field">
           <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required autofocus>
         </div>
-        <div class="field">
-          <button type="button" class="region-trigger" id="f-word-trigger">
-            <span class="val placeholder" id="f-word-label">Select a word</span>
-            <span class="chev">▾</span>
-          </button>
+        <div class="field field-autocomplete">
+          <input type="text" id="f-word-input" lang="ta" placeholder="செந்தமிழ் வடிவம் (formal word)" autocomplete="off">
           <input type="hidden" id="f-word-id">
           <div class="word-ref" id="f-word-ref" style="display:none;"></div>
+          <ul class="suggest-list" id="wordSuggestList"></ul>
         </div>
         <div class="field">
           <button type="button" class="region-trigger" id="f-region-trigger">
@@ -626,22 +649,6 @@
     <div class="sheet-list" id="regionSheetList"></div>
     <div class="sheet-add-row" id="regionAddRow">
       <button type="button" class="sheet-add-toggle" id="regionAddToggle">+ Add region</button>
-    </div>
-  </div>
-</div>
-
-<div class="sheet-backdrop" id="wordSheet">
-  <div class="sheet">
-    <div class="sheet-head">
-      <h2>Which word is this?</h2>
-      <button class="iconbtn" id="wordSheetClose" aria-label="Close">✕</button>
-    </div>
-    <div class="sheet-search-wrap">
-      <input type="text" id="wordSearchInput" placeholder="Search your words…" autocomplete="off">
-    </div>
-    <div class="sheet-list" id="wordSheetList"></div>
-    <div class="sheet-add-row" id="wordAddRow">
-      <button type="button" class="sheet-add-toggle" id="wordAddToggle">+ New word</button>
     </div>
   </div>
 </div>
@@ -947,111 +954,18 @@
     }
   }
 
-  // ---------- word picker sheet ----------
-  var wordSheet = document.getElementById("wordSheet");
-  var wordSheetList = document.getElementById("wordSheetList");
-  var wordAddRow = document.getElementById("wordAddRow");
-  var wordSearchInput = document.getElementById("wordSearchInput");
-  var wordPickerOnSelect = null;
-  var wordPickerCurrentId = null;
-
-  function closeWordSheet() {
-    wordSheet.classList.remove("open");
-    wordPickerOnSelect = null;
-    wordSearchInput.value = "";
-  }
-
-  function resetWordAddRow() {
-    wordAddRow.innerHTML = '<button type="button" class="sheet-add-toggle" id="wordAddToggle">+ New word</button>';
-    document.getElementById("wordAddToggle").addEventListener("click", showWordAddForm);
-  }
-
-  function showWordAddForm() {
-    wordAddRow.innerHTML =
-      '<div class="sheet-add-form-fields">' +
-        '<input type="text" id="wordNewFormal" lang="ta" placeholder="Literary / formal form (optional)" autocomplete="off">' +
-        '<input type="text" id="wordNewMeaning" placeholder="Meaning / gloss (optional)" autocomplete="off">' +
-        '<button type="button" class="btn btn-primary btn-small" id="wordNewSave">Save &amp; select</button>' +
-      '</div>';
-    document.getElementById("wordNewFormal").focus();
-    document.getElementById("wordNewSave").addEventListener("click", function () {
-      var formal = document.getElementById("wordNewFormal").value.trim();
-      var meaning = document.getElementById("wordNewMeaning").value.trim();
-      var newWord = { id: uid(), formal: formal, meaning: meaning, createdAt: new Date().toISOString(), variants: [] };
-      queueMutation(function (st) { return { words: [newWord].concat(st.words), regions: st.regions }; });
-      if (wordPickerOnSelect) wordPickerOnSelect(newWord.id);
-      closeWordSheet();
-    });
-  }
-
-  function renderWordSheetList() {
-    var q = wordSearchInput.value.trim().toLowerCase();
-    var list = state.words.filter(function (w) {
-      if (!q) return true;
-      var hay = [w.formal, w.meaning].concat(w.variants.map(function (v) { return v.colloquial + " " + v.region; })).join(" ").toLowerCase();
-      return hay.indexOf(q) !== -1;
-    }).slice().sort(function (a, b) { return wordTitle(a).localeCompare(wordTitle(b)); });
-
-    if (!list.length) {
-      wordSheetList.innerHTML = '<div class="sheet-empty">' + (state.words.length ? "No words match that search." : "No words yet — add your first one below.") + '</div>';
-      return;
-    }
-    wordSheetList.innerHTML = list.map(function (w) {
-      var sel = w.id === wordPickerCurrentId ? " selected" : "";
-      var title = wordTitle(w);
-      var showMeaning = w.meaning && w.meaning !== title;
-      return '<button type="button" class="sheet-option word-option' + sel + '" data-word="' + w.id + '">' +
-        '<span class="wo-main"><span class="wo-title" lang="ta">' + escapeHtml(title) + '</span>' +
-        (showMeaning ? '<span class="wo-sub">' + escapeHtml(w.meaning) + '</span>' : '') + '</span>' +
-        '<span class="wo-count">' + w.variants.length + ' region' + (w.variants.length === 1 ? '' : 's') + '</span>' +
-      '</button>';
-    }).join("");
-    wordSheetList.querySelectorAll(".word-option").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var id = btn.dataset.word;
-        if (wordPickerOnSelect) wordPickerOnSelect(id);
-        closeWordSheet();
-      });
-    });
-  }
-
-  function openWordPicker(currentId, onSelect) {
-    wordPickerCurrentId = currentId;
-    wordPickerOnSelect = onSelect;
-    wordSearchInput.value = "";
-    renderWordSheetList();
-    resetWordAddRow();
-    wordSheet.classList.add("open");
-  }
-
-  document.getElementById("wordSheetClose").addEventListener("click", closeWordSheet);
-  wordSheet.addEventListener("click", function (ev) { if (ev.target === wordSheet) closeWordSheet(); });
-  wordSearchInput.addEventListener("input", renderWordSheetList);
-
-  function setWordTrigger(labelEl, hiddenEl, refEl, wordId) {
-    hiddenEl.value = wordId || "";
-    if (!wordId) {
-      labelEl.textContent = "Select a word";
-      labelEl.classList.add("placeholder");
-      refEl.style.display = "none";
-      return;
-    }
-    var w = state.words.find(function (x) { return x.id === wordId; });
-    if (!w) {
-      labelEl.textContent = "Select a word";
-      labelEl.classList.add("placeholder");
-      refEl.style.display = "none";
-      return;
-    }
+  // ---------- word autocomplete ----------
+  function wordSuggestItemHtml(w) {
     var title = wordTitle(w);
-    labelEl.textContent = title;
-    labelEl.classList.remove("placeholder");
-    if (w.meaning && w.meaning !== title) {
-      refEl.textContent = w.meaning;
-      refEl.style.display = "block";
-    } else {
-      refEl.style.display = "none";
-    }
+    var showMeaning = w.meaning && w.meaning !== title;
+    return '<li class="suggest-item" data-word="' + w.id + '">' +
+      '<span class="si-title" lang="ta">' + escapeHtml(title) + '</span>' +
+      (showMeaning ? '<span class="si-sub">' + escapeHtml(w.meaning) + '</span>' : '') +
+    '</li>';
+  }
+
+  function findWordByExactFormal(text) {
+    return state.words.find(function (w) { return w.formal && w.formal === text; });
   }
 
   // ---------- header disclosure ----------
@@ -1067,10 +981,54 @@
   var addRegionTrigger = document.getElementById("f-region-trigger");
   var addRegionLabel = document.getElementById("f-region-label");
   var addRegionHidden = document.getElementById("f-region");
-  var addWordTrigger = document.getElementById("f-word-trigger");
-  var addWordLabel = document.getElementById("f-word-label");
+  var addWordInput = document.getElementById("f-word-input");
   var addWordHidden = document.getElementById("f-word-id");
   var addWordRef = document.getElementById("f-word-ref");
+  var wordSuggestList = document.getElementById("wordSuggestList");
+
+  function updateWordRef(w) {
+    var title = w ? wordTitle(w) : "";
+    if (w && w.meaning && w.meaning !== title) {
+      addWordRef.textContent = w.meaning;
+      addWordRef.style.display = "block";
+    } else {
+      addWordRef.style.display = "none";
+    }
+  }
+
+  function renderWordSuggestions() {
+    var q = addWordInput.value.trim().toLowerCase();
+    if (!q) { wordSuggestList.classList.remove("open"); wordSuggestList.innerHTML = ""; return; }
+    var matches = state.words.filter(function (w) {
+      return (w.formal || "").toLowerCase().indexOf(q) !== -1;
+    }).sort(function (a, b) { return wordTitle(a).localeCompare(wordTitle(b)); }).slice(0, 8);
+    if (!matches.length) { wordSuggestList.classList.remove("open"); wordSuggestList.innerHTML = ""; return; }
+    wordSuggestList.innerHTML = matches.map(wordSuggestItemHtml).join("");
+    wordSuggestList.classList.add("open");
+    wordSuggestList.querySelectorAll(".suggest-item").forEach(function (li) {
+      li.addEventListener("mousedown", function (ev) {
+        ev.preventDefault();
+        var w = state.words.find(function (x) { return x.id === li.dataset.word; });
+        if (!w) return;
+        addWordInput.value = wordTitle(w);
+        addWordHidden.value = w.id;
+        updateWordRef(w);
+        wordSuggestList.classList.remove("open");
+      });
+    });
+  }
+
+  addWordInput.addEventListener("input", function () {
+    addWordHidden.value = "";
+    updateWordRef(null);
+    renderWordSuggestions();
+  });
+  addWordInput.addEventListener("focus", function () {
+    if (addWordInput.value.trim()) renderWordSuggestions();
+  });
+  addWordInput.addEventListener("blur", function () {
+    setTimeout(function () { wordSuggestList.classList.remove("open"); }, 150);
+  });
 
   addRegionTrigger.addEventListener("click", function () {
     openRegionPicker(addRegionHidden.value, function (region) {
@@ -1078,21 +1036,21 @@
     });
   });
 
-  addWordTrigger.addEventListener("click", function () {
-    openWordPicker(addWordHidden.value, function (wordId) {
-      setWordTrigger(addWordLabel, addWordHidden, addWordRef, wordId);
-    });
-  });
-
   addForm.addEventListener("submit", function (ev) {
     ev.preventDefault();
     var colloquialInput = document.getElementById("f-colloquial");
     var colloquial = colloquialInput.value.trim();
-    var wordId = addWordHidden.value;
+    var wordText = addWordInput.value.trim();
     var region = addRegionHidden.value.trim();
     if (!colloquial) { colloquialInput.focus(); return; }
-    if (!wordId) { addWordTrigger.focus(); return; }
+    if (!wordText) { addWordInput.focus(); return; }
     if (!region) { addRegionTrigger.focus(); return; }
+
+    var selectedId = addWordHidden.value;
+    var matchedWord = selectedId ? state.words.find(function (w) { return w.id === selectedId; }) : null;
+    if (!matchedWord || wordTitle(matchedWord) !== wordText) {
+      matchedWord = findWordByExactFormal(wordText);
+    }
 
     var newVariant = {
       id: uid(),
@@ -1100,10 +1058,17 @@
       colloquial: colloquial,
       createdAt: new Date().toISOString()
     };
+    var newWordForThis = matchedWord ? null : { id: uid(), formal: wordText, meaning: "", createdAt: new Date().toISOString(), variants: [] };
+    var targetWordId = matchedWord ? matchedWord.id : newWordForThis.id;
+
     queueMutation(function (st) {
+      var words = st.words;
+      if (newWordForThis && !words.some(function (w) { return w.id === targetWordId; })) {
+        words = [newWordForThis].concat(words);
+      }
       return {
-        words: st.words.map(function (w) {
-          if (w.id !== wordId) return w;
+        words: words.map(function (w) {
+          if (w.id !== targetWordId) return w;
           return { id: w.id, formal: w.formal, meaning: w.meaning, createdAt: w.createdAt, variants: [newVariant].concat(w.variants) };
         }),
         regions: st.regions
@@ -1112,6 +1077,7 @@
 
     colloquialInput.value = "";
     setRegionTrigger(addRegionLabel, addRegionHidden, region);
+    addWordHidden.value = targetWordId;
     colloquialInput.focus();
 
     var toast = document.getElementById("addToast");
