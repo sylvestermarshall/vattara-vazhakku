@@ -410,26 +410,7 @@
   }
 
 
-  /* region / word picker triggers */
-  .region-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.6rem;
-    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
-    font-size: 1.05rem;
-    background: var(--surface-raised);
-    border: 1px solid var(--line);
-    color: var(--ink);
-    border-radius: 9px;
-    padding: 0.6rem 0.7rem;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-  }
-  .region-trigger .val.placeholder { color: var(--ink-faint); }
-  .region-trigger .chev { color: var(--ink-faint); flex-shrink: 0; font-size: 0.8rem; }
-
+  /* word / region autocomplete */
   .field-autocomplete { position: relative; }
   .suggest-list {
     display: none;
@@ -460,92 +441,6 @@
   .suggest-item:hover { background: var(--accent-soft); }
   .suggest-item .si-title { font-size: 1rem; font-family: "Catamaran", "Noto Sans Tamil", sans-serif; }
   .suggest-item .si-sub { font-size: 0.75rem; color: var(--ink-faint); }
-
-  .sheet-backdrop {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(10, 17, 24, 0.5);
-    z-index: 30;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  .sheet-backdrop.open { display: flex; }
-  .sheet {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-bottom: none;
-    border-radius: 16px 16px 0 0;
-    max-width: 640px;
-    width: 100%;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: var(--shadow);
-  }
-  .sheet-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.1rem 0.7rem;
-    border-bottom: 1px solid var(--line-soft);
-    flex-shrink: 0;
-  }
-  .sheet-head h2 { font-family: "Baloo Thambi 2", sans-serif; font-size: 1.05rem; margin: 0; }
-  .sheet-list {
-    overflow-y: auto;
-    padding: 0.4rem 0.5rem;
-    flex: 1;
-  }
-  .sheet-option {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    background: none;
-    border: none;
-    text-align: left;
-    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
-    font-size: 1rem;
-    color: var(--ink);
-    padding: 0.8rem 0.7rem;
-    border-radius: 9px;
-    cursor: pointer;
-  }
-  .sheet-option:hover { background: var(--accent-soft); }
-  .sheet-option.selected { color: var(--accent); font-weight: 700; }
-  .sheet-option.selected::after { content: "✓"; flex-shrink: 0; margin-left: 0.5rem; }
-  .sheet-empty { padding: 1.4rem 0.7rem; color: var(--ink-faint); font-size: 0.9rem; text-align: center; }
-  .sheet-add-row {
-    flex-shrink: 0;
-    border-top: 1px solid var(--line-soft);
-    padding: 0.7rem;
-  }
-  .sheet-add-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    background: none;
-    border: none;
-    font-family: "Catamaran", sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--accent);
-    padding: 0.6rem 0.5rem;
-    cursor: pointer;
-  }
-  .sheet-add-form { display: flex; gap: 0.5rem; }
-  .sheet-add-form input {
-    flex: 1;
-    font-family: "Catamaran", "Noto Sans Tamil", system-ui, sans-serif;
-    font-size: 1rem;
-    background: var(--surface-raised);
-    border: 1px solid var(--line);
-    color: var(--ink);
-    border-radius: 9px;
-    padding: 0.55rem 0.7rem;
-  }
-  .sheet-add-form-fields { display: flex; flex-direction: column; gap: 0.5rem; }
 
   /* backup modal */
   .modal-backdrop {
@@ -611,12 +506,9 @@
           <div class="word-ref" id="f-word-ref" style="display:none;"></div>
           <ul class="suggest-list" id="wordSuggestList"></ul>
         </div>
-        <div class="field">
-          <button type="button" class="region-trigger" id="f-region-trigger">
-            <span class="val placeholder" id="f-region-label">Select a region</span>
-            <span class="chev">▾</span>
-          </button>
-          <input type="hidden" id="f-region">
+        <div class="field field-autocomplete">
+          <input type="text" id="f-region" placeholder="e.g. Madurai" autocomplete="off">
+          <ul class="suggest-list" id="regionSuggestList"></ul>
         </div>
         <button type="submit" class="btn btn-primary">சேர் · Save version</button>
         <div class="toast" id="addToast"></div>
@@ -640,18 +532,6 @@
   </section>
 </div>
 
-<div class="sheet-backdrop" id="regionSheet">
-  <div class="sheet">
-    <div class="sheet-head">
-      <h2>Region / accent</h2>
-      <button class="iconbtn" id="regionSheetClose" aria-label="Close">✕</button>
-    </div>
-    <div class="sheet-list" id="regionSheetList"></div>
-    <div class="sheet-add-row" id="regionAddRow">
-      <button type="button" class="sheet-add-toggle" id="regionAddToggle">+ Add region</button>
-    </div>
-  </div>
-</div>
 
 <div class="modal-backdrop" id="syncModal">
   <div class="modal">
@@ -859,13 +739,6 @@
     return Object.keys(set).sort(function (a, b) { return a.localeCompare(b); });
   }
 
-  function addRegionMutation(name) {
-    return function (st) {
-      if (st.regions.indexOf(name) !== -1) return st;
-      return { words: st.words, regions: st.regions.concat([name]) };
-    };
-  }
-
   function refreshRegionFilter() {
     var sel = document.getElementById("regionFilter");
     var current = sel.value;
@@ -875,83 +748,29 @@
     if (list.indexOf(current) !== -1) sel.value = current;
   }
 
-  // ---------- region picker sheet ----------
-  var regionSheet = document.getElementById("regionSheet");
-  var regionSheetList = document.getElementById("regionSheetList");
-  var regionAddRow = document.getElementById("regionAddRow");
-  var regionPickerOnSelect = null;
-
-  function closeRegionSheet() {
-    regionSheet.classList.remove("open");
-    regionPickerOnSelect = null;
-  }
-
-  function resetRegionAddRow() {
-    regionAddRow.innerHTML = '<button type="button" class="sheet-add-toggle" id="regionAddToggle">+ Add region</button>';
-    document.getElementById("regionAddToggle").addEventListener("click", showRegionAddForm);
-  }
-
-  function showRegionAddForm() {
-    regionAddRow.innerHTML =
-      '<div class="sheet-add-form">' +
-        '<input type="text" id="regionNewInput" placeholder="New region name" autocomplete="off">' +
-        '<button type="button" class="btn btn-primary btn-small" style="width:auto;margin-top:0;" id="regionNewSave">Save</button>' +
-      '</div>';
-    var input = document.getElementById("regionNewInput");
-    input.focus();
-    function commit() {
-      var name = input.value.trim();
-      if (!name) return;
-      queueMutation(addRegionMutation(name));
-      if (regionPickerOnSelect) regionPickerOnSelect(name);
-      closeRegionSheet();
-    }
-    document.getElementById("regionNewSave").addEventListener("click", commit);
-    input.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter") { ev.preventDefault(); commit(); }
-    });
-  }
-
-  function renderRegionSheetList(currentValue) {
-    var list = getAllRegions();
-    if (!list.length) {
-      regionSheetList.innerHTML = '<div class="sheet-empty">No regions yet — add your first one below.</div>';
-      return;
-    }
-    regionSheetList.innerHTML = list.map(function (r) {
-      var sel = r === currentValue ? " selected" : "";
-      return '<button type="button" class="sheet-option' + sel + '" data-region="' + escapeHtml(r) + '">' + escapeHtml(r) + '</button>';
+  // ---------- region autocomplete ----------
+  function renderRegionSuggestionsFor(inputEl, listEl) {
+    var q = inputEl.value.trim().toLowerCase();
+    if (!q) { listEl.classList.remove("open"); listEl.innerHTML = ""; return; }
+    var matches = getAllRegions().filter(function (r) { return r.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+    if (!matches.length) { listEl.classList.remove("open"); listEl.innerHTML = ""; return; }
+    listEl.innerHTML = matches.map(function (r) {
+      return '<li class="suggest-item" data-region="' + escapeHtml(r) + '"><span class="si-title">' + escapeHtml(r) + '</span></li>';
     }).join("");
-    regionSheetList.querySelectorAll(".sheet-option").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var name = btn.dataset.region;
-        if (regionPickerOnSelect) regionPickerOnSelect(name);
-        closeRegionSheet();
+    listEl.classList.add("open");
+    listEl.querySelectorAll(".suggest-item").forEach(function (li) {
+      li.addEventListener("mousedown", function (ev) {
+        ev.preventDefault();
+        inputEl.value = li.dataset.region;
+        listEl.classList.remove("open");
       });
     });
   }
 
-  function openRegionPicker(currentValue, onSelect) {
-    regionPickerOnSelect = onSelect;
-    renderRegionSheetList(currentValue);
-    resetRegionAddRow();
-    regionSheet.classList.add("open");
-  }
-
-  document.getElementById("regionSheetClose").addEventListener("click", closeRegionSheet);
-  regionSheet.addEventListener("click", function (ev) {
-    if (ev.target === regionSheet) closeRegionSheet();
-  });
-
-  function setRegionTrigger(labelEl, hiddenEl, value) {
-    hiddenEl.value = value || "";
-    if (value) {
-      labelEl.textContent = value;
-      labelEl.classList.remove("placeholder");
-    } else {
-      labelEl.textContent = "Select a region";
-      labelEl.classList.add("placeholder");
-    }
+  function wireRegionAutocomplete(inputEl, listEl) {
+    inputEl.addEventListener("input", function () { renderRegionSuggestionsFor(inputEl, listEl); });
+    inputEl.addEventListener("focus", function () { if (inputEl.value.trim()) renderRegionSuggestionsFor(inputEl, listEl); });
+    inputEl.addEventListener("blur", function () { setTimeout(function () { listEl.classList.remove("open"); }, 150); });
   }
 
   // ---------- word autocomplete ----------
@@ -978,9 +797,9 @@
 
   // ---------- add form ----------
   var addForm = document.getElementById("addForm");
-  var addRegionTrigger = document.getElementById("f-region-trigger");
-  var addRegionLabel = document.getElementById("f-region-label");
-  var addRegionHidden = document.getElementById("f-region");
+  var addRegionInput = document.getElementById("f-region");
+  var regionSuggestList = document.getElementById("regionSuggestList");
+  wireRegionAutocomplete(addRegionInput, regionSuggestList);
   var addWordInput = document.getElementById("f-word-input");
   var addWordHidden = document.getElementById("f-word-id");
   var addWordRef = document.getElementById("f-word-ref");
@@ -1030,21 +849,15 @@
     setTimeout(function () { wordSuggestList.classList.remove("open"); }, 150);
   });
 
-  addRegionTrigger.addEventListener("click", function () {
-    openRegionPicker(addRegionHidden.value, function (region) {
-      setRegionTrigger(addRegionLabel, addRegionHidden, region);
-    });
-  });
-
   addForm.addEventListener("submit", function (ev) {
     ev.preventDefault();
     var colloquialInput = document.getElementById("f-colloquial");
     var colloquial = colloquialInput.value.trim();
     var wordText = addWordInput.value.trim();
-    var region = addRegionHidden.value.trim();
+    var region = addRegionInput.value.trim();
     if (!colloquial) { colloquialInput.focus(); return; }
     if (!wordText) { addWordInput.focus(); return; }
-    if (!region) { addRegionTrigger.focus(); return; }
+    if (!region) { addRegionInput.focus(); return; }
 
     var selectedId = addWordHidden.value;
     var matchedWord = selectedId ? state.words.find(function (w) { return w.id === selectedId; }) : null;
@@ -1076,7 +889,6 @@
     });
 
     colloquialInput.value = "";
-    setRegionTrigger(addRegionLabel, addRegionHidden, region);
     addWordHidden.value = targetWordId;
     colloquialInput.focus();
 
@@ -1137,12 +949,10 @@
     return '<li class="variant-item variant-edit" data-word="' + w.id + '" data-variant="' + v.id + '">' +
       '<div class="edit-form">' +
         '<div class="field"><label>Word as heard</label><input type="text" lang="ta" class="ev-colloquial" value="' + escapeHtml(v.colloquial) + '"></div>' +
-        '<div class="field">' +
+        '<div class="field field-autocomplete">' +
           '<label>Region / accent</label>' +
-          '<button type="button" class="region-trigger ev-region-trigger">' +
-            '<span class="val ev-region-label">' + escapeHtml(v.region) + '</span><span class="chev">▾</span>' +
-          '</button>' +
-          '<input type="hidden" class="ev-region" value="' + escapeHtml(v.region) + '">' +
+          '<input type="text" class="ev-region" value="' + escapeHtml(v.region) + '" autocomplete="off">' +
+          '<ul class="suggest-list ev-region-suggest"></ul>' +
         '</div>' +
         '<div class="edit-actions">' +
           '<button class="btn btn-primary btn-small save-variant-edit" style="width:auto;margin-top:0;">Save</button>' +
@@ -1156,10 +966,10 @@
     return '<li class="variant-item variant-add-form" data-word="' + w.id + '">' +
       '<div class="edit-form">' +
         '<div class="field"><label>Word as heard</label><input type="text" lang="ta" class="nv-colloquial" placeholder="எப்படி சொன்னாங்க" autocomplete="off"></div>' +
-        '<div class="field">' +
+        '<div class="field field-autocomplete">' +
           '<label>Region / accent</label>' +
-          '<button type="button" class="region-trigger nv-region-trigger"><span class="val placeholder nv-region-label">Select a region</span><span class="chev">▾</span></button>' +
-          '<input type="hidden" class="nv-region">' +
+          '<input type="text" class="nv-region" placeholder="e.g. Madurai" autocomplete="off">' +
+          '<ul class="suggest-list nv-region-suggest"></ul>' +
         '</div>' +
         '<div class="edit-actions">' +
           '<button class="btn btn-primary btn-small save-new-variant" style="width:auto;margin-top:0;">Save</button>' +
@@ -1245,16 +1055,13 @@
           if (!v) return;
           item.outerHTML = variantEditHtml(w, v);
           var newItem = container.querySelector('.variant-item[data-variant="' + variantId + '"]');
-          var evTrigger = newItem.querySelector(".ev-region-trigger");
-          var evLabel = newItem.querySelector(".ev-region-label");
-          var evHidden = newItem.querySelector(".ev-region");
-          evTrigger.addEventListener("click", function () {
-            openRegionPicker(evHidden.value, function (region) { setRegionTrigger(evLabel, evHidden, region); });
-          });
+          var evRegionInput = newItem.querySelector(".ev-region");
+          var evRegionSuggest = newItem.querySelector(".ev-region-suggest");
+          wireRegionAutocomplete(evRegionInput, evRegionSuggest);
           newItem.querySelector(".save-variant-edit").addEventListener("click", function () {
             var updated = {
               colloquial: newItem.querySelector(".ev-colloquial").value.trim() || v.colloquial,
-              region: evHidden.value.trim() || v.region
+              region: evRegionInput.value.trim() || v.region
             };
             queueMutation(function (st) {
               return {
@@ -1311,15 +1118,12 @@
         li.classList.add("expanded");
         li.querySelector(".variant-list").insertAdjacentHTML("beforeend", variantAddFormHtml(w));
         var newItem = li.querySelector(".variant-add-form");
-        var nvTrigger = newItem.querySelector(".nv-region-trigger");
-        var nvLabel = newItem.querySelector(".nv-region-label");
-        var nvHidden = newItem.querySelector(".nv-region");
-        nvTrigger.addEventListener("click", function () {
-          openRegionPicker(nvHidden.value, function (region) { setRegionTrigger(nvLabel, nvHidden, region); });
-        });
+        var nvRegionInput = newItem.querySelector(".nv-region");
+        var nvRegionSuggest = newItem.querySelector(".nv-region-suggest");
+        wireRegionAutocomplete(nvRegionInput, nvRegionSuggest);
         newItem.querySelector(".save-new-variant").addEventListener("click", function () {
           var colloquial = newItem.querySelector(".nv-colloquial").value.trim();
-          var region = nvHidden.value.trim();
+          var region = nvRegionInput.value.trim();
           if (!colloquial || !region) return;
           var variant = { id: uid(), region: region, colloquial: colloquial, createdAt: new Date().toISOString() };
           queueMutation(function (st) {
