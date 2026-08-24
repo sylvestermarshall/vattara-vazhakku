@@ -889,7 +889,10 @@
     });
 
     colloquialInput.value = "";
-    addWordHidden.value = targetWordId;
+    addWordInput.value = "";
+    addWordHidden.value = "";
+    updateWordRef(null);
+    addRegionInput.value = "";
     colloquialInput.focus();
 
     var toast = document.getElementById("addToast");
