@@ -511,14 +511,14 @@
     <section id="view-add">
       <div class="panel">
         <form id="addForm">
-          <div class="field">
-            <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required autofocus>
-          </div>
           <div class="field field-autocomplete">
-            <input type="text" id="f-word-input" lang="ta" placeholder="செந்தமிழ் வடிவம் (formal word)" autocomplete="off">
+            <input type="text" id="f-word-input" lang="ta" placeholder="செந்தமிழ் வடிவம் (formal word)" autocomplete="off" autofocus>
             <input type="hidden" id="f-word-id">
             <div class="word-ref" id="f-word-ref" style="display:none;"></div>
             <ul class="suggest-list" id="wordSuggestList"></ul>
+          </div>
+          <div class="field">
+            <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required>
           </div>
           <div class="field field-autocomplete">
             <input type="text" id="f-region" placeholder="e.g. Madurai" autocomplete="off">
