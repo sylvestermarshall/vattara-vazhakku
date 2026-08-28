@@ -236,15 +236,6 @@
     min-height: 1.1em;
   }
 
-  .recent-title {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ink-faint);
-    font-weight: 600;
-    margin: 1.6rem 0 0.6rem;
-  }
-
   /* search / filter bar */
   .searchbar { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
   .searchbar input { flex: 1; }
@@ -260,45 +251,6 @@
     font-family: "JetBrains Mono", monospace;
   }
 
-  /* entry list w/ spine motif (recent-added, read-only) */
-  ul.entries { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
-
-  li.entry {
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 0.85rem 0.9rem 0.85rem 1.3rem;
-    box-shadow: var(--shadow);
-  }
-  li.entry::before {
-    content: "";
-    position: absolute;
-    left: 0.55rem;
-    top: 0.9rem;
-    bottom: 0.9rem;
-    width: 1px;
-    background: var(--line);
-  }
-  li.entry::after {
-    content: "";
-    position: absolute;
-    left: 0.55rem;
-    top: 0.9rem;
-    width: 5px;
-    height: 5px;
-    margin-left: -2px;
-    border-radius: 50%;
-    background: var(--ink-faint);
-  }
-
-  .entry-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.6rem;
-  }
-  .entry-word { font-size: 1.2rem; font-weight: 600; }
   .entry-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
   .entry-actions button {
     background: none; border: none; color: var(--ink-faint); cursor: pointer;
@@ -306,26 +258,6 @@
   }
   .entry-actions button:hover { color: var(--accent); background: var(--accent-soft); }
   .entry-actions button.del:hover { color: var(--danger); background: var(--danger-soft); }
-
-  .variant-word-ref { font-size: 0.78rem; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
-
-  .chiprow { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
-  .chip {
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    border: 1px solid var(--accent-soft-line);
-    color: var(--accent);
-  }
-  .chip.date {
-    background: transparent;
-    border-color: var(--line);
-    color: var(--ink-faint);
-    font-family: "JetBrains Mono", monospace;
-    font-weight: 500;
-  }
 
   .edit-form { display: flex; flex-direction: column; gap: 0.6rem; }
   .edit-actions { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
@@ -471,7 +403,7 @@
 
   .word-card.expanded .word-card-toggle .chev { transform: rotate(180deg); }
   @media (prefers-reduced-motion: no-preference) {
-    li.entry, li.word-card, .panel { transition: none; }
+    li.word-card, .panel { transition: none; }
     .word-card-toggle .chev { transition: transform 0.15s ease; }
   }
 </style>
@@ -514,7 +446,6 @@
         <div class="toast" id="addToast"></div>
       </form>
     </div>
-    <div id="recentWrap"></div>
   </section>
 
   <!-- WORDS -->
@@ -904,34 +835,7 @@
 
   function renderAll() {
     refreshRegionFilter();
-    renderRecent();
     renderWords();
-  }
-
-  function getRecentVariants(n) {
-    var flat = [];
-    state.words.forEach(function (w) {
-      w.variants.forEach(function (v) { flat.push({ word: w, variant: v }); });
-    });
-    flat.sort(function (a, b) { return new Date(b.variant.createdAt) - new Date(a.variant.createdAt); });
-    return flat.slice(0, n);
-  }
-
-  function recentVariantHtml(word, v) {
-    var title = wordTitle(word);
-    return '<li class="entry">' +
-      '<div class="variant-word-ref" lang="ta">' + escapeHtml(title) + (word.meaning && word.meaning !== title ? ' · ' + escapeHtml(word.meaning) : '') + '</div>' +
-      '<div class="entry-head"><div class="entry-word" lang="ta">' + escapeHtml(v.colloquial) + '</div></div>' +
-      '<div class="chiprow"><span class="chip">' + escapeHtml(v.region) + '</span><span class="chip date">' + fmtDate(v.createdAt) + '</span></div>' +
-    '</li>';
-  }
-
-  function renderRecent() {
-    var wrap = document.getElementById("recentWrap");
-    var recent = getRecentVariants(3);
-    if (!recent.length) { wrap.innerHTML = ""; return; }
-    wrap.innerHTML = '<div class="recent-title">Recently added</div><ul class="entries">' +
-      recent.map(function (r) { return recentVariantHtml(r.word, r.variant); }).join("") + "</ul>";
   }
 
   // ---------- word cards (Words tab) ----------
