@@ -82,6 +82,86 @@
     padding: 0 1.1rem 4rem;
   }
 
+  .top-grid { display: block; }
+  .top-grid #view-alphabet { margin-top: 1.6rem; }
+
+  @media (min-width: 880px) {
+    .shell { max-width: 1060px; }
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.6rem;
+      align-items: start;
+    }
+    .top-grid #view-alphabet { margin-top: 0; }
+  }
+
+  .az-group { margin-bottom: 1.1rem; }
+  .az-group-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin: 0 0 0.6rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--ink-faint);
+  }
+  .az-group-label .ta {
+    font-family: "Baloo Thambi 2", sans-serif;
+    font-size: 1rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .az-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+  }
+  .az-tile {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Baloo Thambi 2", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 0;
+  }
+  .az-tile:hover { border-color: var(--accent); color: var(--accent); }
+  .az-tile:disabled {
+    color: var(--ink-faint);
+    opacity: 0.4;
+    cursor: default;
+  }
+  .az-tile:disabled:hover { border-color: var(--line); color: var(--ink-faint); }
+
+  .letter-page {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 40;
+    overflow-y: auto;
+  }
+  .letter-page.open { display: block; }
+  .letter-page-inner { max-width: 640px; margin: 0 auto; padding: 1.1rem 1.1rem 4rem; }
+  .letter-page-head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-bottom: 1.1rem;
+  }
+  .letter-page-title { font-family: "Baloo Thambi 2", sans-serif; font-size: 1.5rem; }
+
   header.top {
     background: var(--bg);
     padding: 0.6rem 0 0.5rem;
@@ -425,28 +505,42 @@
     </div>
   </header>
 
-  <!-- ADD -->
-  <section id="view-add">
-    <div class="panel">
-      <form id="addForm">
-        <div class="field">
-          <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required autofocus>
-        </div>
-        <div class="field field-autocomplete">
-          <input type="text" id="f-word-input" lang="ta" placeholder="செந்தமிழ் வடிவம் (formal word)" autocomplete="off">
-          <input type="hidden" id="f-word-id">
-          <div class="word-ref" id="f-word-ref" style="display:none;"></div>
-          <ul class="suggest-list" id="wordSuggestList"></ul>
-        </div>
-        <div class="field field-autocomplete">
-          <input type="text" id="f-region" placeholder="e.g. Madurai" autocomplete="off">
-          <ul class="suggest-list" id="regionSuggestList"></ul>
-        </div>
-        <button type="submit" class="btn btn-primary">சேர் · Save version</button>
-        <div class="toast" id="addToast"></div>
-      </form>
-    </div>
-  </section>
+  <div class="top-grid">
+    <!-- ADD -->
+    <section id="view-add">
+      <div class="panel">
+        <form id="addForm">
+          <div class="field">
+            <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required autofocus>
+          </div>
+          <div class="field field-autocomplete">
+            <input type="text" id="f-word-input" lang="ta" placeholder="செந்தமிழ் வடிவம் (formal word)" autocomplete="off">
+            <input type="hidden" id="f-word-id">
+            <div class="word-ref" id="f-word-ref" style="display:none;"></div>
+            <ul class="suggest-list" id="wordSuggestList"></ul>
+          </div>
+          <div class="field field-autocomplete">
+            <input type="text" id="f-region" placeholder="e.g. Madurai" autocomplete="off">
+            <ul class="suggest-list" id="regionSuggestList"></ul>
+          </div>
+          <button type="submit" class="btn btn-primary">சேர் · Save version</button>
+          <div class="toast" id="addToast"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ALPHABET INDEX -->
+    <section id="view-alphabet">
+      <div class="az-group">
+        <div class="az-group-label"><span class="ta">உயிர்</span><span>Vowels</span></div>
+        <div class="az-grid" id="azVowelGrid"></div>
+      </div>
+      <div class="az-group">
+        <div class="az-group-label"><span class="ta">மெய்</span><span>Consonants</span></div>
+        <div class="az-grid" id="azConsonantGrid"></div>
+      </div>
+    </section>
+  </div>
 
   <!-- WORDS -->
   <section id="view-words">
@@ -463,6 +557,18 @@
   </section>
 </div>
 
+<div class="letter-page" id="letterPage">
+  <div class="letter-page-inner">
+    <div class="letter-page-head">
+      <button type="button" class="iconbtn" id="letterPageBack" aria-label="Back">←</button>
+      <span class="letter-page-title" id="letterPageTitle" lang="ta"></span>
+    </div>
+    <ul class="word-list" id="letterWordList"></ul>
+    <div class="empty" id="letterPageEmpty" style="display:none;">
+      <div class="en">No words starting with this letter yet.</div>
+    </div>
+  </div>
+</div>
 
 <div class="modal-backdrop" id="syncModal">
   <div class="modal">
@@ -836,7 +942,65 @@
   function renderAll() {
     refreshRegionFilter();
     renderWords();
+    renderAzGrid();
+    if (currentLetterView) renderLetterPageContent(currentLetterView);
   }
+
+  // ---------- alphabet index ----------
+  var TAMIL_VOWELS = ["அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "எ", "ஏ", "ஐ", "ஒ", "ஓ", "ஔ"];
+  var TAMIL_CONSONANTS = ["க", "ங", "ச", "ஞ", "ட", "ண", "த", "ந", "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ற", "ன", "ஃ"];
+  var currentLetterView = null;
+
+  function wordsStartingWith(letter) {
+    return state.words.filter(function (w) { return wordTitle(w).charAt(0) === letter; });
+  }
+
+  function renderAzGroup(containerId, letters) {
+    var container = document.getElementById(containerId);
+    container.innerHTML = letters.map(function (l) {
+      var count = wordsStartingWith(l).length;
+      return '<button type="button" class="az-tile" data-letter="' + l + '" title="' + count + ' word' + (count === 1 ? "" : "s") + '"' + (count === 0 ? " disabled" : "") + '>' + l + '</button>';
+    }).join("");
+    container.querySelectorAll(".az-tile:not(:disabled)").forEach(function (btn) {
+      btn.addEventListener("click", function () { openLetterPage(btn.dataset.letter); });
+    });
+  }
+
+  function renderAzGrid() {
+    renderAzGroup("azVowelGrid", TAMIL_VOWELS);
+    renderAzGroup("azConsonantGrid", TAMIL_CONSONANTS);
+  }
+
+  var letterPage = document.getElementById("letterPage");
+  var letterPageTitle = document.getElementById("letterPageTitle");
+  var letterWordList = document.getElementById("letterWordList");
+  var letterPageEmpty = document.getElementById("letterPageEmpty");
+
+  function renderLetterPageContent(letter) {
+    letterPageTitle.textContent = letter;
+    var matches = wordsStartingWith(letter);
+    if (!matches.length) {
+      letterWordList.innerHTML = "";
+      letterPageEmpty.style.display = "block";
+      return;
+    }
+    letterPageEmpty.style.display = "none";
+    letterWordList.innerHTML = matches.map(function (w) { return wordCardHtml(w, w.variants); }).join("");
+    wireWordList(letterWordList);
+  }
+
+  function openLetterPage(letter) {
+    currentLetterView = letter;
+    renderLetterPageContent(letter);
+    letterPage.classList.add("open");
+  }
+
+  function closeLetterPage() {
+    currentLetterView = null;
+    letterPage.classList.remove("open");
+  }
+
+  document.getElementById("letterPageBack").addEventListener("click", closeLetterPage);
 
   // ---------- word cards (Words tab) ----------
   var expandedWords = {};
