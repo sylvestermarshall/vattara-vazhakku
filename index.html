@@ -96,6 +96,8 @@
     .top-grid #view-alphabet { margin-top: 0; }
   }
 
+  .az-region-filter { margin-bottom: 1rem; }
+  .az-region-filter select { width: 100%; }
   .az-group { margin-bottom: 1.1rem; }
   .az-group-label {
     display: flex;
@@ -319,7 +321,6 @@
   /* search / filter bar */
   .searchbar { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
   .searchbar input { flex: 1; }
-  .searchbar select { max-width: 40%; flex-shrink: 0; }
 
   .meta-row {
     display: flex;
@@ -531,6 +532,9 @@
 
     <!-- ALPHABET INDEX -->
     <section id="view-alphabet">
+      <div class="az-region-filter">
+        <select id="regionFilter"><option value="">All regions</option></select>
+      </div>
       <div class="az-group">
         <div class="az-group-label"><span class="ta">உயிர்</span><span>Vowels</span></div>
         <div class="az-grid" id="azVowelGrid"></div>
@@ -546,7 +550,6 @@
   <section id="view-words">
     <div class="searchbar">
       <input type="text" id="search" placeholder="Search words, meanings, notes…" autocomplete="off">
-      <select id="regionFilter"><option value="">All regions</option></select>
     </div>
     <div class="meta-row"><span id="countLabel">0 words</span><span id="regionCountLabel"></span></div>
     <ul class="word-list" id="wordList"></ul>
@@ -952,7 +955,12 @@
   var currentLetterView = null;
 
   function wordsStartingWith(letter) {
-    return state.words.filter(function (w) { return wordTitle(w).charAt(0) === letter; });
+    var rf = document.getElementById("regionFilter").value;
+    return state.words.filter(function (w) {
+      if (wordTitle(w).charAt(0) !== letter) return false;
+      if (rf && !w.variants.some(function (v) { return v.region === rf; })) return false;
+      return true;
+    });
   }
 
   function renderAzGroup(containerId, letters) {
@@ -1216,7 +1224,11 @@
   var searchInput = document.getElementById("search");
   var regionFilter = document.getElementById("regionFilter");
   searchInput.addEventListener("input", renderWords);
-  regionFilter.addEventListener("change", renderWords);
+  regionFilter.addEventListener("change", function () {
+    renderWords();
+    renderAzGrid();
+    if (currentLetterView) renderLetterPageContent(currentLetterView);
+  });
 
   function getFilteredWords() {
     var q = searchInput.value.trim().toLowerCase();
