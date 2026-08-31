@@ -2014,7 +2014,9 @@
           if (!displayVariants.length) return;
         }
       }
-      out.push({ word: w, displayVariants: displayVariants });
+      // the filter/search decides which WORDS show; a shown card lists all its
+      // versions so they can be compared side by side
+      out.push({ word: w, displayVariants: w.variants });
     });
     return out;
   }
