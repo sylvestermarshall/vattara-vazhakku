@@ -303,11 +303,16 @@
   input::placeholder, textarea::placeholder { color: var(--ink-faint); }
 
   .word-ref {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--ink-soft);
-    margin-top: 0.35rem;
-    line-height: 1.4;
+    margin-top: 0.4rem;
+    padding: 0 0.2rem;
+    line-height: 1.45;
   }
+  .word-ref .wr-have { color: var(--ink-faint); }
+  .word-ref .wr-form { color: var(--ink-soft); font-weight: 600; }
+  .word-ref .wr-meaning { color: var(--ink-faint); font-style: italic; }
+  .word-ref .wr-sep { color: var(--ink-faint); opacity: 0.55; }
 
   .btn {
     font-family: inherit;
@@ -456,6 +461,13 @@
     padding: 0.3rem;
   }
   .suggest-list.open { display: block; }
+  /* flipped above the field when there isn't room below (e.g. mobile keyboard open) */
+  .suggest-list.above {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 0.35rem;
+  }
   .suggest-item {
     display: flex;
     flex-direction: column;
@@ -1118,6 +1130,15 @@
     return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
   }
 
+  // put an autocomplete list above its field when there isn't room below
+  // (e.g. the on-screen keyboard shrinks the visual viewport on mobile)
+  function placeSuggestList(inputEl, listEl) {
+    var vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    var r = inputEl.getBoundingClientRect();
+    var below = vh - r.bottom;
+    listEl.classList.toggle("above", below < 240 && r.top > below);
+  }
+
   function wordTitle(w) {
     return w.formal || w.meaning || (w.variants[0] && w.variants[0].colloquial) || "Untitled word";
   }
@@ -1233,6 +1254,7 @@
         '</li>';
       }).join("");
       opts.listEl.classList.add("open");
+      placeSuggestList(opts.inputEl, opts.listEl);
       activeIdx = -1;
       opts.listEl.querySelectorAll(".suggest-item").forEach(function (li) {
         li.addEventListener("mousedown", function (ev) {
@@ -1276,7 +1298,7 @@
       .filter(function (d) {
         return !t || d.name.toLowerCase().indexOf(t) !== -1 || d.ta.indexOf(raw) !== -1 || String(d.n) === t;
       })
-      .map(function (d) { return { value: d.n, label: d.n + " · " + d.ta, sub: d.name }; });
+      .map(function (d) { return { value: d.n, label: d.n + " · " + d.ta }; });
   }
   function accentSuggest(q) {
     var t = String(q || "").trim().toLowerCase();
@@ -1359,14 +1381,39 @@
   var addWordRef = document.getElementById("f-word-ref");
   var wordSuggestList = document.getElementById("wordSuggestList");
 
-  function updateWordRef(w) {
-    var title = w ? wordTitle(w) : "";
-    if (w && w.meaning && w.meaning !== title) {
-      addWordRef.textContent = w.meaning;
-      addWordRef.style.display = "block";
-    } else {
-      addWordRef.style.display = "none";
+  // the existing word the add-form is currently pointed at (selected or typed exactly)
+  function currentAddWord() {
+    if (addWordHidden.value) {
+      var byId = state.words.find(function (w) { return w.id === addWordHidden.value; });
+      if (byId) return byId;
     }
+    return findWordByExactFormal(addWordInput.value.trim()) || null;
+  }
+
+  // show, between the two fields, the colloquial forms already recorded for this word
+  function updateWordRef(w) {
+    if (w === undefined) w = currentAddWord();
+    if (!w || !w.variants || !w.variants.length) {
+      addWordRef.style.display = "none";
+      addWordRef.innerHTML = "";
+      return;
+    }
+    var title = wordTitle(w);
+    var forms = [], seen = {};
+    w.variants.forEach(function (v) {
+      var c = (v.colloquial || "").trim();
+      if (c && !seen[c.toLowerCase()]) { seen[c.toLowerCase()] = true; forms.push(c); }
+    });
+    var bits = [];
+    if (w.meaning && w.meaning !== title) {
+      bits.push('<span class="wr-meaning">' + escapeHtml(w.meaning) + '</span>');
+    }
+    if (forms.length) {
+      bits.push('<span class="wr-have">already added:</span> ' +
+        forms.map(function (c) { return '<span class="wr-form" lang="ta">' + escapeHtml(c) + '</span>'; }).join(", "));
+    }
+    addWordRef.innerHTML = bits.join(' <span class="wr-sep">·</span> ');
+    addWordRef.style.display = bits.length ? "block" : "none";
   }
 
   function renderWordSuggestions() {
@@ -1378,6 +1425,7 @@
     if (!matches.length) { wordSuggestList.classList.remove("open"); wordSuggestList.innerHTML = ""; return; }
     wordSuggestList.innerHTML = matches.map(wordSuggestItemHtml).join("");
     wordSuggestList.classList.add("open");
+    placeSuggestList(addWordInput, wordSuggestList);
     wordSuggestList.querySelectorAll(".suggest-item").forEach(function (li) {
       li.addEventListener("mousedown", function (ev) {
         ev.preventDefault();
@@ -1393,8 +1441,8 @@
 
   addWordInput.addEventListener("input", function () {
     addWordHidden.value = "";
-    updateWordRef(null);
     renderWordSuggestions();
+    updateWordRef();
   });
   addWordInput.addEventListener("focus", function () {
     if (addWordInput.value.trim()) renderWordSuggestions();
