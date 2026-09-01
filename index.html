@@ -1825,7 +1825,7 @@
 
   function variantTagsHtml(v) {
     var tags = v.districts.map(function (n) {
-      return '<span class="v-tag v-district">' + escapeHtml(districtLabel(n)) + '</span>';
+      return '<span class="v-tag v-district">' + escapeHtml(districtName(n)) + '</span>';
     });
     // derived accents (from districts) shown lighter; explicit ones normal
     var explicit = {};
@@ -1840,8 +1840,8 @@
 
   function variantRowHtml(w, v) {
     return '<li class="variant-item" data-word="' + w.id + '" data-variant="' + v.id + '">' +
-      variantTagsHtml(v) +
       '<span class="variant-word" lang="ta">' + escapeHtml(v.colloquial) + '</span>' +
+      variantTagsHtml(v) +
       '<span class="variant-actions">' +
         '<button class="edit-variant" title="Edit" aria-label="Edit">✎</button>' +
         '<button class="del-variant" title="Delete" aria-label="Delete">✕</button>' +
