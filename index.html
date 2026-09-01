@@ -302,6 +302,30 @@
   textarea { resize: vertical; min-height: 3.2rem; font-size: 0.95rem; }
   input::placeholder, textarea::placeholder { color: var(--ink-faint); }
 
+  .input-clear-wrap { position: relative; display: block; }
+  .input-clear-wrap input[type="text"] { padding-right: 2.4rem; }
+  .input-clear {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: var(--line);
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .input-clear:hover { background: var(--ink-faint); color: var(--surface-raised); }
+  .input-clear[hidden] { display: none; }
+
   .word-ref {
     font-size: 0.8rem;
     color: var(--ink-soft);
@@ -641,13 +665,19 @@
       <div class="panel">
         <form id="addForm">
           <div class="field field-autocomplete">
-            <input type="text" id="f-word-input" lang="ta" placeholder="செந்தமிழ் வடிவம் (formal word)" autocomplete="off" autofocus>
+            <div class="input-clear-wrap">
+              <input type="text" id="f-word-input" lang="ta" placeholder="செந்தமிழ் வடிவம் (formal word)" autocomplete="off" autofocus>
+              <button type="button" class="input-clear" id="f-word-clear" aria-label="Clear" hidden>&times;</button>
+            </div>
             <input type="hidden" id="f-word-id">
             <div class="word-ref" id="f-word-ref" style="display:none;"></div>
             <ul class="suggest-list" id="wordSuggestList"></ul>
           </div>
           <div class="field">
-            <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required>
+            <div class="input-clear-wrap">
+              <input type="text" id="f-colloquial" lang="ta" placeholder="எப்படி சொன்னாங்க" autocomplete="off" required>
+              <button type="button" class="input-clear" id="f-colloquial-clear" aria-label="Clear" hidden>&times;</button>
+            </div>
           </div>
           <div class="field field-autocomplete">
             <label>District <span class="opt">— where it's spoken</span></label>
@@ -865,6 +895,26 @@
   var GIST_FILENAME = "vattara-vazhakku.json";
   var TOKEN_KEY = "vattara-vazhakku-gh-token";
   var GIST_ID_KEY = "vattara-vazhakku-gist-id";
+  var LAST_ADD_KEY = "vattara-vazhakku-lastadd";
+
+  // remember the district / accent / intense used on the previous add, so a run
+  // of words from the same region doesn't need re-typing every time
+  function loadLastAdd() {
+    try {
+      var raw = localStorage.getItem(LAST_ADD_KEY);
+      var v = raw ? JSON.parse(raw) : null;
+      return {
+        districts: v && Array.isArray(v.districts) ? v.districts : [],
+        accents: v && Array.isArray(v.accents) ? v.accents : [],
+        intense: !!(v && v.intense)
+      };
+    } catch (e) {
+      return { districts: [], accents: [], intense: false };
+    }
+  }
+  function saveLastAdd(v) {
+    try { localStorage.setItem(LAST_ADD_KEY, JSON.stringify(v)); } catch (e) {}
+  }
 
   // ---------- Tamil Nadu districts (official TNPSC numbering 1..38) ----------
   // name = English, ta = Tamil (shown in the UI); both are searchable.
@@ -1298,7 +1348,7 @@
       .filter(function (d) {
         return !t || d.name.toLowerCase().indexOf(t) !== -1 || d.ta.indexOf(raw) !== -1 || String(d.n) === t;
       })
-      .map(function (d) { return { value: d.n, label: d.n + " · " + d.ta }; });
+      .map(function (d) { return { value: d.n, label: d.ta }; });
   }
   function accentSuggest(q) {
     var t = String(q || "").trim().toLowerCase();
@@ -1374,7 +1424,15 @@
       addHint.innerHTML = "";
     }
   }
-  updateAddHint();
+
+  function prefillLastAdd() {
+    var last = loadLastAdd();
+    addDistrictTags.setValues(last.districts);
+    addAccentTags.setValues(last.accents);
+    addIntense.checked = last.intense;
+    updateAddHint();
+  }
+  prefillLastAdd();
 
   var addWordInput = document.getElementById("f-word-input");
   var addWordHidden = document.getElementById("f-word-id");
@@ -1434,6 +1492,7 @@
         addWordInput.value = wordTitle(w);
         addWordHidden.value = w.id;
         updateWordRef(w);
+        refreshFieldClears();
         wordSuggestList.classList.remove("open");
       });
     });
@@ -1450,6 +1509,28 @@
   addWordInput.addEventListener("blur", function () {
     setTimeout(function () { wordSuggestList.classList.remove("open"); }, 150);
   });
+
+  // ---------- inline "clear" buttons on the two text fields ----------
+  var fieldClearSyncs = [];
+  function wireFieldClear(inputId, btnId) {
+    var inputEl = document.getElementById(inputId);
+    var btnEl = document.getElementById(btnId);
+    function sync() { btnEl.hidden = !inputEl.value.length; }
+    inputEl.addEventListener("input", sync);
+    // keep focus on the field instead of the button
+    btnEl.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
+    btnEl.addEventListener("click", function () {
+      inputEl.value = "";
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      inputEl.focus();
+      sync();
+    });
+    fieldClearSyncs.push(sync);
+    sync();
+  }
+  function refreshFieldClears() { fieldClearSyncs.forEach(function (fn) { fn(); }); }
+  wireFieldClear("f-word-input", "f-word-clear");
+  wireFieldClear("f-colloquial", "f-colloquial-clear");
 
   addForm.addEventListener("submit", function (ev) {
     ev.preventDefault();
@@ -1493,14 +1574,16 @@
       };
     });
 
+    saveLastAdd({ districts: districts, accents: accents, intense: addIntense.checked });
+
     colloquialInput.value = "";
     addWordInput.value = "";
     addWordHidden.value = "";
     updateWordRef(null);
     addDistrictTags.clear();
     addAccentTags.clear();
-    addIntense.checked = false;
-    updateAddHint();
+    prefillLastAdd();
+    refreshFieldClears();
     colloquialInput.focus();
 
     var toast = document.getElementById("addToast");
@@ -1692,18 +1775,50 @@
     wireWordList(letterWordList);
   }
 
-  function openLetterPage(letter) {
+  function isKnownLetter(letter) {
+    return TAMIL_VOWELS.indexOf(letter) !== -1 || TAMIL_CONSONANTS.indexOf(letter) !== -1;
+  }
+
+  function letterFromHash() {
+    var h = "";
+    try { h = decodeURIComponent(String(location.hash || "").replace(/^#/, "")); } catch (e) { return null; }
+    if (h.indexOf("letter/") !== 0) return null;
+    var letter = h.slice("letter/".length);
+    return isKnownLetter(letter) ? letter : null;
+  }
+
+  // show/hide the overlay without touching history
+  function showLetterPage(letter) {
     currentLetterView = letter;
     renderLetterPageContent(letter);
     letterPage.classList.add("open");
+    letterPage.scrollTop = 0;
   }
-
-  function closeLetterPage() {
+  function hideLetterPage() {
     currentLetterView = null;
     letterPage.classList.remove("open");
   }
 
-  document.getElementById("letterPageBack").addEventListener("click", closeLetterPage);
+  // called from a letter tile — push a history entry so Back returns here
+  function openLetterPage(letter) {
+    if (letterFromHash() !== letter) {
+      location.hash = "letter/" + encodeURIComponent(letter);
+    }
+    showLetterPage(letter);
+  }
+
+  // keep the overlay in sync with the URL (Back/Forward, direct load, manual edit)
+  function syncLetterPageToHash() {
+    var letter = letterFromHash();
+    if (letter) showLetterPage(letter);
+    else hideLetterPage();
+  }
+  window.addEventListener("hashchange", syncLetterPageToHash);
+
+  document.getElementById("letterPageBack").addEventListener("click", function () {
+    if (window.history.length > 1) window.history.back();
+    else location.hash = "";
+  });
 
   // ---------- word cards (Words tab) ----------
   var expandedWords = {};
@@ -2189,6 +2304,7 @@
 
   // ---------- init ----------
   initSync();
+  syncLetterPageToHash();
 })();
 </script>
 </body>
