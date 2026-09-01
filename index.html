@@ -954,6 +954,9 @@
     "பொதுத் தமிழ்": "பொதுத் தமிழ்", "பொது தமிழ்": "பொதுத் தமிழ்"
   };
   var LEGACY_REGION_IGNORE = { "தெரியாதது": 1, "unknown": 1, "தெரியவில்லை": 1 };
+  // "general Tamil" — its variant is shown first in a word card, ahead of regional ones
+  var COMMON_ACCENT = "பொதுத் தமிழ்";
+  function taCompare(a, b) { return String(a == null ? "" : a).localeCompare(String(b == null ? "" : b), "ta"); }
 
   var state = { words: [], accents: [] };
   var pendingMutations = [];
@@ -1935,12 +1938,20 @@
   function wordCardHtml(w, displayVariants) {
     var title = wordTitle(w);
     var showMeaning = w.meaning && w.meaning !== title;
-    var variantSortKey = function (v) {
-      if (v.districts.length) return "0" + Math.min.apply(null, v.districts).toString().padStart(2, "0");
-      if (v.accents.length) return "1" + v.accents.slice().sort()[0];
-      return "2";
+    // ordering: the variant matching the active district/accent filter first,
+    // then the "பொதுத் தமிழ்" (general) variant, then the rest A→Z in Tamil order
+    var f = activeFilter();
+    var filtering = !!(f.district || f.accent);
+    var variantRank = function (v) {
+      if (filtering && variantMatchesFilter(v, f)) return 0;
+      if (v.accents.indexOf(COMMON_ACCENT) !== -1) return 1;
+      return 2;
     };
-    var variants = displayVariants.slice().sort(function (a, b) { return variantSortKey(a).localeCompare(variantSortKey(b)); });
+    var variants = displayVariants.slice().sort(function (a, b) {
+      var ra = variantRank(a), rb = variantRank(b);
+      if (ra !== rb) return ra - rb;
+      return taCompare(a.colloquial, b.colloquial);
+    });
     var expandedClass = expandedWords[w.id] ? " expanded" : "";
     return '<li class="word-card' + expandedClass + '" data-word="' + w.id + '">' +
       '<div class="word-card-head">' +
