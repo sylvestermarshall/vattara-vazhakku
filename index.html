@@ -941,7 +941,7 @@
   TN_DISTRICTS.forEach(function (d) { DISTRICT[d.n] = d; });
   function districtName(n) { return DISTRICT[n] ? DISTRICT[n].ta : ("மாவட்டம் " + n); }
   function districtNameEn(n) { return DISTRICT[n] ? DISTRICT[n].name : ("District " + n); }
-  function districtLabel(n) { return n + " · " + districtName(n); }
+  function districtLabel(n) { return districtName(n); }
   // legacy region string -> district number, for migrating old data
   var LEGACY_REGION_TO_DISTRICT = {
     "chennai": 1, "சென்னை": 1, "madras": 1,
