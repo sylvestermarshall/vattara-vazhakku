@@ -894,6 +894,24 @@
   var TOKEN_KEY = "vattara-vazhakku-gh-token";
   var GIST_ID_KEY = "vattara-vazhakku-gist-id";
   var LAST_ADD_KEY = "vattara-vazhakku-lastadd";
+  var USAGE_KEY = "vattara-vazhakku-usage";
+
+  // how often each district / accent has been picked, so the ones this person
+  // reaches for most float to the top of the suggestion list
+  function loadUsage() {
+    try {
+      var v = JSON.parse(localStorage.getItem(USAGE_KEY) || "{}");
+      return { districts: v.districts || {}, accents: v.accents || {} };
+    } catch (e) {
+      return { districts: {}, accents: {} };
+    }
+  }
+  function bumpUsage(districts, accents) {
+    var u = loadUsage();
+    (districts || []).forEach(function (n) { u.districts[n] = (u.districts[n] || 0) + 1; });
+    (accents || []).forEach(function (nm) { u.accents[nm] = (u.accents[nm] || 0) + 1; });
+    try { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); } catch (e) {}
+  }
 
   // remember the district / accent / intense used on the previous add, so a run
   // of words from the same region doesn't need re-typing every time
@@ -1317,7 +1335,8 @@
     }
 
     opts.inputEl.addEventListener("input", openList);
-    opts.inputEl.addEventListener("focus", function () { if (opts.inputEl.value.trim() || !opts.allowFree) openList(); });
+    // open on focus too — with nothing typed this shows the most-used options
+    opts.inputEl.addEventListener("focus", openList);
     opts.inputEl.addEventListener("blur", function () { setTimeout(closeList, 150); });
     opts.inputEl.addEventListener("keydown", function (ev) {
       var lis = opts.listEl.querySelectorAll(".suggest-item");
@@ -1342,24 +1361,31 @@
     };
   }
 
+  // suggestions are ordered by how often this person has picked each one
+  // (most-used first); ties keep the natural order. With an empty query this
+  // means focusing the field shows your go-to districts / accents right away.
   function districtSuggest(q) {
     var raw = String(q || "").trim();
     var t = raw.toLowerCase();
+    var used = loadUsage().districts;
     return TN_DISTRICTS
       .filter(function (d) {
         return !t || d.name.toLowerCase().indexOf(t) !== -1 || d.ta.indexOf(raw) !== -1 || String(d.n) === t;
       })
-      .map(function (d) { return { value: d.n, label: d.ta }; });
+      .map(function (d) { return { value: d.n, label: d.ta, _used: used[d.n] || 0 }; })
+      .sort(function (a, b) { return b._used - a._used; });
   }
   function accentSuggest(q) {
     var t = String(q || "").trim().toLowerCase();
+    var used = loadUsage().accents;
     return allAccentNames()
       .filter(function (nm) { return !t || nm.toLowerCase().indexOf(t) !== -1; })
       .map(function (nm) {
         var acc = getAccent(nm);
         var sub = acc && acc.districts.length ? acc.districts.length + " districts" : "";
-        return { value: nm, label: nm, sub: sub };
-      });
+        return { value: nm, label: nm, sub: sub, _used: used[nm] || 0 };
+      })
+      .sort(function (a, b) { return b._used - a._used; });
   }
 
   // ---------- word autocomplete ----------
@@ -1576,6 +1602,7 @@
     });
 
     saveLastAdd({ districts: districts, accents: accents, intense: addIntense.checked });
+    bumpUsage(districts, accents);
 
     colloquialInput.value = "";
     addWordInput.value = "";
