@@ -693,7 +693,7 @@
           </div>
           <label class="intense-check">
             <input type="checkbox" id="f-intense">
-            <span><span class="ta">அடர் வழக்கு</span> · intense form</span>
+            <span><span class="ta">கிராம வழக்கு</span> · intense form</span>
           </label>
           <div class="form-hint" id="addHint"></div>
           <button type="submit" class="btn btn-primary">சேர் · Save version</button>
@@ -1834,7 +1834,7 @@
     derivedAccents(v).sort().forEach(function (nm) {
       tags.push('<span class="v-tag v-accent"' + (explicit[nm] ? "" : ' style="opacity:.65"') + '>' + escapeHtml(nm) + '</span>');
     });
-    if (v.intense) tags.push('<span class="v-tag v-intense">அடர்</span>');
+    if (v.intense) tags.push('<span class="v-tag v-intense">கிராம வழக்கு</span>');
     if (!tags.length) tags.push('<span class="v-tag v-none">தெரியாதது</span>');
     return '<span class="variant-tags">' + tags.join("") + '</span>';
   }
@@ -1868,7 +1868,7 @@
       '</div>' +
       '<label class="intense-check">' +
         '<input type="checkbox" data-role="' + prefix + '-intense">' +
-        '<span><span class="ta">அடர் வழக்கு</span> · intense form</span>' +
+        '<span><span class="ta">கிராம வழக்கு</span> · intense form</span>' +
       '</label>';
   }
 
