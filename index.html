@@ -675,7 +675,13 @@
           </div>
           <div class="field">
             <div class="input-clear-wrap">
-              <input type="text" id="f-colloquial" lang="ta" placeholder="வட்டார வடிவம்" autocomplete="off" required>
+              <input type="text" id="f-common" lang="ta" placeholder="பொதுத் தமிழ் வடிவம்" autocomplete="off">
+              <button type="button" class="input-clear" id="f-common-clear" aria-label="Clear" hidden>&times;</button>
+            </div>
+          </div>
+          <div class="field">
+            <div class="input-clear-wrap">
+              <input type="text" id="f-colloquial" lang="ta" placeholder="வட்டார வடிவம்" autocomplete="off">
               <button type="button" class="input-clear" id="f-colloquial-clear" aria-label="Clear" hidden>&times;</button>
             </div>
           </div>
@@ -1379,7 +1385,8 @@
     var t = String(q || "").trim().toLowerCase();
     var used = loadUsage().accents;
     return allAccentNames()
-      .filter(function (nm) { return !t || nm.toLowerCase().indexOf(t) !== -1; })
+      // பொதுத் தமிழ் has its own field now — it is never a regional accent
+      .filter(function (nm) { return nm !== COMMON_ACCENT && (!t || nm.toLowerCase().indexOf(t) !== -1); })
       .map(function (nm) {
         var acc = getAccent(nm);
         var sub = acc && acc.districts.length ? acc.districts.length + " districts" : "";
@@ -1435,6 +1442,7 @@
   });
 
   function updateAddHint() {
+    var regional = document.getElementById("f-colloquial").value.trim();
     var ds = addDistrictTags.getValues();
     var derived = {};
     ds.forEach(function (n) {
@@ -1445,8 +1453,8 @@
     var names = Object.keys(derived).filter(function (nm) { return addAccentTags.getValues().indexOf(nm) === -1; });
     if (names.length) {
       addHint.innerHTML = 'Also filed under <b>' + names.map(escapeHtml).join("</b>, <b>") + '</b> (from the district)';
-    } else if (!addDistrictTags.getValues().length && !addAccentTags.getValues().length) {
-      addHint.innerHTML = 'No district or accent — saved as <b>தெரியாதது</b>, fill in later.';
+    } else if (regional && !addDistrictTags.getValues().length && !addAccentTags.getValues().length) {
+      addHint.innerHTML = 'No district or accent — the வட்டார வடிவம் is saved as <b>தெரியாதது</b>, fill in later.';
     } else {
       addHint.innerHTML = "";
     }
@@ -1460,6 +1468,7 @@
     updateAddHint();
   }
   prefillLastAdd();
+  document.getElementById("f-colloquial").addEventListener("input", updateAddHint);
 
   var addWordInput = document.getElementById("f-word-input");
   var addWordHidden = document.getElementById("f-word-id");
@@ -1557,17 +1566,21 @@
   }
   function refreshFieldClears() { fieldClearSyncs.forEach(function (fn) { fn(); }); }
   wireFieldClear("f-word-input", "f-word-clear");
+  wireFieldClear("f-common", "f-common-clear");
   wireFieldClear("f-colloquial", "f-colloquial-clear");
 
   addForm.addEventListener("submit", function (ev) {
     ev.preventDefault();
+    var commonInput = document.getElementById("f-common");
     var colloquialInput = document.getElementById("f-colloquial");
+    var common = commonInput.value.trim();
     var colloquial = colloquialInput.value.trim();
     var wordText = addWordInput.value.trim();
     var districts = addDistrictTags.getValues();
     var accents = addAccentTags.getValues();
-    if (!colloquial) { colloquialInput.focus(); return; }
     if (!wordText) { addWordInput.focus(); return; }
+    // need at least one spoken form: the பொதுத் தமிழ் one, the regional one, or both
+    if (!common && !colloquial) { colloquialInput.focus(); return; }
     // district + accent are both optional — an untagged version is "தெரியாதது"
 
     var selectedId = addWordHidden.value;
@@ -1576,16 +1589,30 @@
       matchedWord = findWordByExactFormal(wordText);
     }
 
-    var newVariant = {
-      id: uid(),
-      colloquial: colloquial,
-      districts: districts,
-      accents: accents,
-      intense: addIntense.checked,
-      createdAt: new Date().toISOString()
-    };
-    var newWordForThis = matchedWord ? null : { id: uid(), formal: wordText, meaning: "", createdAt: new Date().toISOString(), variants: [] };
+    // பொதுத் தமிழ் is a single category, set only through its own field. Keep it
+    // off the regional row so a word never ends up with two பொதுத் தமிழ் variants.
+    var commonAccentPicked = accents.indexOf(COMMON_ACCENT) !== -1;
+    var regionalAccents = accents.filter(function (nm) { return nm !== COMMON_ACCENT; });
+    // regional row tagged only பொதுத் தமிழ் and nothing else, with no dedicated
+    // பொதுத் தமிழ் word given -> that row IS the பொதுத் தமிழ் form
+    if (!common && commonAccentPicked && !regionalAccents.length && !districts.length && colloquial) {
+      common = colloquial;
+      colloquial = "";
+    }
+
+    var now = new Date().toISOString();
+    // the பொதுத் தமிழ் form is its own variant, always tagged பொதுத் தமிழ் and
+    // never touched by the district / accent fields below it
+    var newVariants = [];
+    if (common) {
+      newVariants.push({ id: uid(), colloquial: common, districts: [], accents: [COMMON_ACCENT], intense: false, createdAt: now });
+    }
+    if (colloquial && colloquial !== common) {
+      newVariants.push({ id: uid(), colloquial: colloquial, districts: districts, accents: regionalAccents, intense: addIntense.checked, createdAt: now });
+    }
+    var newWordForThis = matchedWord ? null : { id: uid(), formal: wordText, meaning: "", createdAt: now, variants: [] };
     var targetWordId = matchedWord ? matchedWord.id : newWordForThis.id;
+    var accentsToRegister = regionalAccents.concat((common || commonAccentPicked) ? [COMMON_ACCENT] : []);
 
     queueMutation(function (st) {
       var words = st.words;
@@ -1595,15 +1622,16 @@
       return {
         words: words.map(function (w) {
           if (w.id !== targetWordId) return w;
-          return { id: w.id, formal: w.formal, meaning: w.meaning, createdAt: w.createdAt, variants: [newVariant].concat(w.variants) };
+          return { id: w.id, formal: w.formal, meaning: w.meaning, createdAt: w.createdAt, variants: newVariants.concat(w.variants) };
         }),
-        accents: ensureAccents(st.accents, accents)
+        accents: ensureAccents(st.accents, accentsToRegister)
       };
     });
 
-    saveLastAdd({ districts: districts, accents: accents, intense: addIntense.checked });
-    bumpUsage(districts, accents);
+    saveLastAdd({ districts: districts, accents: regionalAccents, intense: addIntense.checked });
+    bumpUsage(districts, regionalAccents);
 
+    commonInput.value = "";
     colloquialInput.value = "";
     addWordInput.value = "";
     addWordHidden.value = "";
@@ -1612,7 +1640,7 @@
     addAccentTags.clear();
     prefillLastAdd();
     refreshFieldClears();
-    colloquialInput.focus();
+    addWordInput.focus();
 
     var toast = document.getElementById("addToast");
     var totalVariants = 0;
