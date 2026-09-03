@@ -159,6 +159,12 @@
   }
   .az-tile:disabled:hover { border-color: var(--line); color: var(--ink-faint); }
 
+  /* desktop: half-size letter tiles (mobile keeps its 6-across layout untouched) */
+  @media (min-width: 880px) {
+    .az-grid { grid-template-columns: repeat(12, 1fr); gap: 0.35rem; }
+    .az-tile { font-size: 0.95rem; border-radius: 7px; }
+  }
+
   .letter-page {
     display: none;
     position: fixed;
